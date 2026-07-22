@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Contact Info
+  fullName    String
+  phone       String
+  email       String
+  company     String?
+  businessName String?
+
+  // Project Info
+  projectName        String?
+  projectDescription String?
+  budget             String?
+  timeline           String?
+  platform           String   @default("both") // android | ios | both
+
+  // Payment
+  paymentStatus String @default("PENDING") // PENDING | PAID | REFUNDED
+  orderId       String? @unique
+  paymentId     String?
+  cfPaymentId   String?
+  amount        Int     @default(99)
+  currency      String  @default("INR")
+
+  // UTM & Tracking
+  gclid       String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  ipAddress   String?
+  userAgent   String?
+
+  // Admin
+  adminNotes   String?
+  callbackTime DateTime?
+  isVerified   Boolean  @default(false)
+
+  @@index([email])
+  @@index([phone])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model PendingOrder {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  orderId   String   @unique
+  sessionId String
+  formData  Json
+  status    String   @default("CREATED") // CREATED | PAID | FAILED | EXPIRED
+
+  // TTL: clean up orders older than 24h via cron
+  expiresAt DateTime
+
+  @@index([orderId])
+  @@index([status])
+}
