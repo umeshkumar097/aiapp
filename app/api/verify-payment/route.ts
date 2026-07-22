@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
+  const appUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 
   try {
     const result = await processPaymentVerification(orderId);

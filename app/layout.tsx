@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
+const rawUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
+const APP_URL = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 const GADS_ID = process.env.NEXT_PUBLIC_GADS_ID || "AW-18336858770";
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;

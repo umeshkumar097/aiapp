@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const customerId = generateCustomerId(formData.email);
     // Cashfree Production mode strictly requires HTTPS return_url
     const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
-    const appUrl = rawAppUrl.replace(/^http:\/\//i, "https://");
+    const appUrl = rawAppUrl.startsWith("http") ? rawAppUrl.replace(/^http:\/\//i, "https://") : `https://${rawAppUrl}`;
 
     // Create Cashfree order
     const cashfreeOrder = await createCashfreeOrder({
