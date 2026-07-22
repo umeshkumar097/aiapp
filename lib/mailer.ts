@@ -209,10 +209,10 @@ export async function sendCustomerConfirmation(lead: Lead & { orderId?: string |
       </div>
 
       <div class="cta-group">
-        <a href="https://wa.me/919999999999?text=Hi,%20I%20just%20submitted%20my%20project%20request%20(Order:%20${lead.orderId})" class="cta-primary">
+        <a href="https://wa.me/919871881183?text=Hi,%20I%20just%20submitted%20my%20project%20request%20(Order:%20${lead.orderId})" class="cta-primary">
           💬 WhatsApp Us
         </a>
-        <a href="tel:+919999999999" class="cta-secondary">
+        <a href="tel:+918449488090" class="cta-secondary">
           📞 Call Now
         </a>
       </div>
@@ -220,7 +220,7 @@ export async function sendCustomerConfirmation(lead: Lead & { orderId?: string |
     <div class="footer">
       <strong>Aiclex Solutions Private Limited</strong><br>
       GST Registered · Secure Payments · 1 Year Support<br>
-      📧 hello@aiclex.in · 📞 +91 99999 99999<br>
+      📧 info@aiclex.in · 📞 +91 84494 88090<br>
       <a href="https://aiclex.in/refund-policy" style="color:#2563EB;">Refund Policy</a> · 
       <a href="https://aiclex.in/privacy-policy" style="color:#2563EB;">Privacy Policy</a>
     </div>
