@@ -97,6 +97,31 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Also immediately create a PENDING Lead so it shows up in the admin dashboard
+    await prisma.lead.create({
+      data: {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        company: formData.company || null,
+        businessName: formData.businessName || null,
+        projectName: formData.projectName || null,
+        projectDescription: formData.projectDescription || null,
+        budget: formData.budget || null,
+        timeline: formData.timeline || null,
+        platform: formData.platform,
+        paymentStatus: "PENDING",
+        orderId,
+        isVerified: false,
+        gclid: formData.gclid || null,
+        utmSource: formData.utmSource || null,
+        utmMedium: formData.utmMedium || null,
+        utmCampaign: formData.utmCampaign || null,
+        utmTerm: formData.utmTerm || null,
+        utmContent: formData.utmContent || null,
+      },
+    });
+
     return NextResponse.json({
       orderId,
       paymentSessionId: cashfreeOrder.payment_session_id,

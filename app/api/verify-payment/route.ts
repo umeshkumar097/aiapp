@@ -111,9 +111,10 @@ async function processPaymentVerification(orderId: string) {
 
   const formData = pendingOrder.formData as LeadFormInput;
 
-  // Create lead in database
-  const lead = await prisma.lead.create({
-    data: {
+  // Upsert lead in database (since it was already created as PENDING in create-order)
+  const lead = await prisma.lead.upsert({
+    where: { orderId },
+    create: {
       fullName: formData.fullName,
       phone: formData.phone,
       email: formData.email,
@@ -136,6 +137,12 @@ async function processPaymentVerification(orderId: string) {
       utmCampaign: formData.utmCampaign || null,
       utmTerm: formData.utmTerm || null,
       utmContent: formData.utmContent || null,
+      isVerified: true,
+    },
+    update: {
+      paymentStatus: "PAID",
+      paymentId: payment.cf_payment_id?.toString() || orderId,
+      cfPaymentId: payment.cf_payment_id?.toString() || null,
       isVerified: true,
     },
   });
