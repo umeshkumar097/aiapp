@@ -51,6 +51,30 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingOrder) {
+      // Upsert lead so it always shows up in Admin dashboard, even if session is cached
+      await prisma.lead.upsert({
+        where: { orderId: existingOrder.orderId },
+        create: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          email: formData.email,
+          company: formData.company || null,
+          businessName: formData.businessName || null,
+          projectName: formData.projectName || null,
+          projectDescription: formData.projectDescription || null,
+          budget: formData.budget || null,
+          timeline: formData.timeline || null,
+          platform: formData.platform,
+          paymentStatus: "PENDING",
+          orderId: existingOrder.orderId,
+          isVerified: false,
+        },
+        update: {
+          fullName: formData.fullName,
+          email: formData.email,
+        },
+      }).catch(e => console.error("Error upserting existing lead:", e));
+
       // Return existing session if still valid
       return NextResponse.json({
         orderId: existingOrder.orderId,
