@@ -6,7 +6,7 @@ const rawUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
 const APP_URL = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 const GADS_ID = process.env.NEXT_PUBLIC_GADS_ID || "AW-18336858770";
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1571976487793372";
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "902291945914083";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
