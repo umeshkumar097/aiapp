@@ -19,6 +19,9 @@ export default function LeadForm() {
   const [showModal, setShowModal] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  const [paymentSession, setPaymentSession] = useState<{orderId: string, paymentSessionId: string} | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -59,29 +62,41 @@ export default function LeadForm() {
     document.body.appendChild(script);
   }, []);
 
-  const onSubmit = () => {
-    setShowModal(true);
-  };
-
-  const handlePayNow = async () => {
-    setPaymentLoading(true);
+  const onSubmit = async (data: LeadFormInput) => {
+    setFormLoading(true);
     try {
-      const formData = watch();
-
       const res = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData }),
+        body: JSON.stringify({ formData: data }),
       });
 
-      const data = await res.json();
+      const responseData = await res.json();
 
-      if (!res.ok || !data.paymentSessionId) {
-        toast.error(data.error || "Failed to create order. Please try again.");
-        setPaymentLoading(false);
+      if (!res.ok || !responseData.paymentSessionId) {
+        toast.error(responseData.error || "Failed to process form. Please try again.");
+        setFormLoading(false);
         return;
       }
 
+      setPaymentSession({
+        orderId: responseData.orderId,
+        paymentSessionId: responseData.paymentSessionId,
+      });
+      setShowModal(true);
+    } catch (error) {
+      console.error("Form submit error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handlePayNow = async () => {
+    if (!paymentSession) return;
+    
+    setPaymentLoading(true);
+    try {
       if (!window.Cashfree) {
         toast.error("Payment gateway loading... Please try in 3 seconds.");
         setPaymentLoading(false);
@@ -93,8 +108,8 @@ export default function LeadForm() {
       });
 
       cashfree.checkout({
-        paymentSessionId: data.paymentSessionId,
-        returnUrl: `${window.location.origin}/api/verify-payment?orderId=${data.orderId}&redirect=true`,
+        paymentSessionId: paymentSession.paymentSessionId,
+        returnUrl: `${window.location.origin}/api/verify-payment?orderId=${paymentSession.orderId}&redirect=true`,
         redirectTarget: "_self",
       });
     } catch (error) {
@@ -210,7 +225,7 @@ export default function LeadForm() {
               type="submit"
               size="lg"
               className="w-full rounded-2xl mt-2"
-              loading={isSubmitting}
+              loading={formLoading || isSubmitting}
             >
               Submit Requirement →
             </GradientButton>
