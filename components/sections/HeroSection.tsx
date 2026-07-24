@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Star, Shield, FileText, Clock, Sparkles, Flame, CheckCircle2, Rocket } from "lucide-react";
+import { Star, Shield, FileText, Clock, Sparkles, Flame, Rocket } from "lucide-react";
 import GradientButton from "@/components/ui/GradientButton";
-import PhoneMockup from "@/components/ui/PhoneMockup";
+import InlineLeadForm from "@/components/sections/InlineLeadForm";
 
 const trustItems = [
   { icon: <Star size={14} className="fill-amber-400 text-amber-400" />, label: "Google Rated 4.9★" },
@@ -163,71 +162,14 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right: Phone mockups */}
+          {/* Right: Inline Lead Form — visible immediately */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="hidden lg:flex items-center justify-center relative h-[500px]"
-            aria-hidden="true"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="w-full"
           >
-            {/* Center phone */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <PhoneMockup
-                gradient="linear-gradient(135deg, #2563EB 0%, #1e40af 100%)"
-                floating={true}
-                delay={0}
-              />
-            </div>
-
-            {/* Left phone */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 scale-90 opacity-70">
-              <PhoneMockup
-                gradient="linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)"
-                floating={true}
-                delay={1}
-              />
-            </div>
-
-            {/* Right phone */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 scale-90 opacity-70">
-              <PhoneMockup
-                gradient="linear-gradient(135deg, #059669 0%, #047857 100%)"
-                floating={true}
-                delay={2}
-              />
-            </div>
-
-            {/* Floating labels */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute top-8 right-16 glass rounded-2xl px-4 py-2 border border-white/10"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <CheckCircle2 className="text-green-400" size={14} />
-                </div>
-                <div>
-                  <p className="text-white text-xs font-semibold">App Delivered!</p>
-                  <p className="text-slate-400 text-xs">Play Store Live</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 3.5, repeat: Infinity, delay: 1 }}
-              className="absolute bottom-12 left-16 glass rounded-2xl px-4 py-2 border border-white/10"
-            >
-              <div className="flex items-center gap-2">
-                <Star size={18} className="fill-amber-400 text-amber-400" />
-                <div>
-                  <p className="text-white text-xs font-semibold">4.9 / 5.0</p>
-                  <p className="text-slate-400 text-xs">500+ Reviews</p>
-                </div>
-              </div>
-            </motion.div>
+            <InlineLeadForm />
           </motion.div>
         </div>
       </div>

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, TrendingUp, ShoppingCart, AlertCircle } from "lucide-react";
-import GradientButton from "@/components/ui/GradientButton";
+import { X } from "lucide-react";
+import InlineLeadForm from "@/components/sections/InlineLeadForm";
 
 interface ExitPopupProps {
   onClose?: () => void;
@@ -96,95 +96,29 @@ export default function ExitPopup({ onClose }: ExitPopupProps) {
                 <X size={18} />
               </button>
 
-              <div className="p-6 md:p-8">
-                {/* Alert badge */}
-                <div className="flex items-center gap-2 mb-6">
-                  <AlertCircle className="text-amber-400" size={16} />
-                  <span className="text-amber-400 text-sm font-semibold">Wait! Don&apos;t leave yet</span>
+              <div className="p-6 md:p-7">
+                {/* Header */}
+                <div className="mb-5">
+                  <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-3 py-1.5 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                    <span className="text-red-400 font-semibold text-xs">Wait! Limited slots available</span>
+                  </div>
+                  <h3 className="text-white text-xl font-black leading-tight">
+                    Get Your App Built<br />
+                    <span className="gradient-text">Starting at ₹49,999</span>
+                  </h3>
+                  <p className="text-slate-400 text-sm mt-1">
+                    Fill the form — reserve your slot now with just ₹99 refundable token
+                  </p>
                 </div>
 
-                {/* Comparison grid */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {/* Without App */}
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
-                    <div className="text-center mb-3">
-                      <span className="text-2xl">😟</span>
-                      <h3 className="text-red-400 font-bold text-sm mt-1">WITHOUT APP</h3>
-                    </div>
-                    <ul className="space-y-2">
-                      {[
-                        "Customers leaving",
-                        "Manual work daily",
-                        "Lost revenue",
-                        "No brand growth",
-                        "Competitors winning",
-                      ].map((item) => (
-                        <li key={item} className="flex items-center gap-2 text-xs text-red-300">
-                          <span className="text-red-500 font-bold">✗</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* With App */}
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4">
-                    <div className="text-center mb-3">
-                      <span className="text-2xl">🚀</span>
-                      <h3 className="text-green-400 font-bold text-sm mt-1">WITH APP</h3>
-                    </div>
-                    <ul className="space-y-2">
-                      {[
-                        "More orders daily",
-                        "Brand recognition",
-                        "Automatic sales",
-                        "Customer loyalty",
-                        "Scale faster",
-                      ].map((item) => (
-                        <li key={item} className="flex items-center gap-2 text-xs text-green-300">
-                          <span className="text-green-400 font-bold">✓</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Offer */}
-                <div className="text-center mb-6 p-4 bg-gradient-to-r from-blue-600/20 to-blue-500/10 rounded-2xl border border-blue-500/20">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <ShoppingCart className="text-blue-400" size={18} />
-                    <span className="text-slate-300 text-sm font-medium">Limited Time Offer</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-3">
-                    <div>
-                      <p className="text-slate-400 text-sm">Android + iOS App</p>
-                      <p className="text-3xl font-black text-white mt-0.5">
-                        Only <span className="gradient-text">₹49,999</span>
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <TrendingUp className="text-green-400 mb-1" size={20} />
-                      <span className="text-green-400 text-xs font-bold">ROI Ready</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <GradientButton
-                  size="lg"
-                  className="w-full rounded-2xl"
-                  onClick={handleCTA}
-                  id="exit-popup-cta"
-                >
-                  🚀 Build My App — Start Now
-                </GradientButton>
+                <InlineLeadForm compact={true} />
 
                 <button
                   onClick={handleClose}
-                  className="w-full mt-3 text-slate-500 text-sm hover:text-slate-400 transition-colors py-2"
+                  className="w-full mt-3 text-slate-500 text-xs hover:text-slate-400 transition-colors py-2"
                 >
-                  No thanks, I&apos;ll stay behind my competitors
+                  No thanks, I&apos;ll miss out
                 </button>
               </div>
             </div>
