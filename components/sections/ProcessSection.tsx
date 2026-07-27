@@ -1,42 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ClipboardList, MapPin, Home, Key } from "lucide-react";
+import { UserPlus, FolderPlus, BarChart3, TrendingUp } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: <ClipboardList size={24} className="text-blue-600" />,
-    title: "Submit Enquiry",
+    icon: <UserPlus size={24} className="text-blue-600" />,
+    title: "Create Your Account",
     description:
-      "Fill our quick form with your requirements. A dedicated property expert will call you within 24 hours — no spam, no brokerage.",
+      "Sign up and set up your company profile in minutes. Add your team members, agents, and assign role-based access controls.",
   },
   {
     number: "02",
-    icon: <MapPin size={24} className="text-green-600" />,
-    title: "Free Site Visit",
+    icon: <FolderPlus size={24} className="text-green-600" />,
+    title: "Add Your Projects & Inventory",
     description:
-      "We arrange a personalised site visit at your convenience. See the property, location, and infrastructure firsthand.",
+      "Create projects and upload your entire inventory — plots, apartments, houses, or commercial units — with pricing, area, and status.",
   },
   {
     number: "03",
-    icon: <Home size={24} className="text-blue-600" />,
-    title: "Choose & Book",
+    icon: <BarChart3 size={24} className="text-blue-600" />,
+    title: "Manage Bookings in Real-time",
     description:
-      "Select the plot, apartment, or villa that fits your budget. We assist with legal documentation, home loan, and booking formalities.",
+      "As leads come in, book units directly on the platform. Every booking is instantly reflected across your team — zero confusion.",
   },
   {
     number: "04",
-    icon: <Key size={24} className="text-amber-500" />,
-    title: "Get Possession",
+    icon: <TrendingUp size={24} className="text-amber-500" />,
+    title: "Track Sales & Collections",
     description:
-      "We ensure on-time delivery with full possession support. Your relationship manager stays with you till the keys are in your hand.",
+      "Monitor payment milestones, pending collections, and project-wise sales performance — all from a single company dashboard.",
   },
 ];
 
 export default function ProcessSection() {
   return (
-    <section className="section-padding bg-white" aria-label="How it works">
+    <section id="process" className="section-padding bg-white" aria-label="How Siteboard works">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -46,13 +46,13 @@ export default function ProcessSection() {
           className="text-center mb-14"
         >
           <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
-            Simple Process
+            Getting Started
           </p>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
-            Own Your Property in <span className="gradient-text">4 Simple Steps</span>
+            Up and Running in <span className="gradient-text">Under 1 Hour</span>
           </h2>
           <p className="text-slate-500 text-base max-w-xl mx-auto">
-            We handle the complexity. You just enjoy the journey to ownership.
+            No complex setup. No IT team needed. Just sign in and start managing your real estate empire.
           </p>
         </motion.div>
 
@@ -72,14 +72,13 @@ export default function ProcessSection() {
               transition={{ duration: 0.5, delay: i * 0.12 }}
               className="text-center relative"
             >
-              {/* Number circle */}
               <div className="w-20 h-20 bg-white border-2 border-slate-200 rounded-full flex items-center justify-center mx-auto mb-5 relative shadow-sm">
                 {step.icon}
                 <span className="absolute -top-1 -right-1 w-6 h-6 bg-blue-600 text-white text-xs font-black rounded-full flex items-center justify-center">
                   {i + 1}
                 </span>
               </div>
-              <h3 className="text-slate-900 font-bold text-base mb-2">{step.title}</h3>
+              <h3 className="text-slate-900 font-bold text-sm mb-2">{step.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
             </motion.div>
           ))}

@@ -1,18 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Building2, Award, Clock } from "lucide-react";
+import { Users, Building2, BarChart3, MapPin } from "lucide-react";
 
 const stats = [
-  { value: "500+", label: "Happy Families", icon: <Users size={22} className="text-blue-600" /> },
-  { value: "50+", label: "Projects Delivered", icon: <Building2 size={22} className="text-green-600" /> },
-  { value: "98%", label: "On-Time Possession", icon: <Clock size={22} className="text-amber-500" /> },
-  { value: "15+", label: "Years Experience", icon: <Award size={22} className="text-blue-600" /> },
+  { value: "500+", label: "Developers Onboarded", icon: <Users size={22} className="text-blue-600" /> },
+  { value: "50K+", label: "Units Tracked", icon: <Building2 size={22} className="text-green-600" /> },
+  { value: "Zero", label: "Double Bookings Reported", icon: <BarChart3 size={22} className="text-blue-600" /> },
+  { value: "Pan India", label: "Operational Reach", icon: <MapPin size={22} className="text-amber-500" /> },
 ];
 
 export default function StatsSection() {
   return (
-    <section className="bg-white border-y border-slate-100 py-12" aria-label="Company statistics">
+    <section className="bg-white border-y border-slate-100 py-12" aria-label="Platform statistics">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, i) => (
@@ -27,8 +27,8 @@ export default function StatsSection() {
               <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-3 border border-slate-100">
                 {stat.icon}
               </div>
-              <p className="text-3xl font-black text-slate-900">{stat.value}</p>
-              <p className="text-slate-500 text-sm mt-1">{stat.label}</p>
+              <p className="text-2xl font-black text-slate-900">{stat.value}</p>
+              <p className="text-slate-500 text-xs mt-1 leading-snug">{stat.label}</p>
             </motion.div>
           ))}
         </div>

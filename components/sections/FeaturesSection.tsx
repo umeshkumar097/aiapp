@@ -1,50 +1,50 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, FileCheck, MapPin, CreditCard, Wrench, Headphones } from "lucide-react";
+import { Map, ShieldCheck, FolderKanban, Lock, BookOpen, Eye } from "lucide-react";
 
 const features = [
   {
-    icon: <Shield size={24} className="text-blue-600" />,
-    title: "RERA Approved",
+    icon: <Map size={24} className="text-blue-600" />,
+    title: "Visual Plot Map",
     description:
-      "All our projects are registered under RERA, ensuring complete legal protection and transparency for every buyer.",
+      "See your entire layout on an interactive map. Color-coded status — green for available, orange for booked, red for sold. Anyone can instantly see what&apos;s left.",
   },
   {
-    icon: <FileCheck size={24} className="text-green-600" />,
-    title: "100% Legal Clearance",
+    icon: <FolderKanban size={24} className="text-green-600" />,
+    title: "Project-Wise Management",
     description:
-      "Every property comes with clear titles, verified documents, and zero legal disputes — buy with total peace of mind.",
+      "Manage multiple projects simultaneously. Each project has its own inventory, pricing, documents, and booking records — all in one place.",
   },
   {
-    icon: <MapPin size={24} className="text-amber-500" />,
-    title: "Prime Locations",
+    icon: <ShieldCheck size={24} className="text-blue-600" />,
+    title: "Zero Double Booking",
     description:
-      "Properties in well-connected, developing corridors across India with high appreciation potential.",
+      "The moment a unit is booked, it's instantly locked across all channels. No more accidental duplicate bookings by agents or staff.",
   },
   {
-    icon: <CreditCard size={24} className="text-blue-600" />,
-    title: "Flexible Payment Plans",
+    icon: <BookOpen size={24} className="text-amber-500" />,
+    title: "Booking Management",
     description:
-      "Easy EMI options, construction-linked plans, and bank loan assistance to make your investment stress-free.",
+      "Full booking lifecycle — from initial token to final registry. Track payment milestones, due dates, and customer documents in one timeline.",
   },
   {
-    icon: <Wrench size={24} className="text-green-600" />,
-    title: "Premium Amenities",
+    icon: <Eye size={24} className="text-green-600" />,
+    title: "Agent View-Only Access",
     description:
-      "24/7 security, landscaped parks, clubhouse, wide roads, and all modern infrastructure from day one.",
+      "Give your channel partners and agents a read-only view of live inventory. They see what&apos;s available — nothing more, nothing less.",
   },
   {
-    icon: <Headphones size={24} className="text-blue-600" />,
-    title: "Dedicated Support",
+    icon: <Lock size={24} className="text-blue-600" />,
+    title: "Company-Level Control",
     description:
-      "A dedicated relationship manager for every buyer — from site visit to possession and beyond.",
+      "Full admin control for your company. Set roles, restrict access by project, and audit every action your staff and agents take.",
   },
 ];
 
 export default function FeaturesSection() {
   return (
-    <section className="section-padding bg-navy-light" aria-label="Features and benefits">
+    <section id="features" className="section-padding bg-navy-light" aria-label="Platform features">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -54,13 +54,14 @@ export default function FeaturesSection() {
           className="text-center mb-12"
         >
           <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
-            Why Siteboard
+            Platform Features
           </p>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
-            Built on <span className="gradient-text">Trust & Transparency</span>
+            Everything a Builder Needs —<br />
+            <span className="gradient-text">In One Dashboard</span>
           </h2>
           <p className="text-slate-500 text-base max-w-xl mx-auto">
-            Everything you need to make the most confident property decision of your life.
+            Built specifically for Indian real estate developers managing plots, apartments, houses, and commercial spaces.
           </p>
         </motion.div>
 
@@ -72,13 +73,16 @@ export default function FeaturesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="glass rounded-2xl p-6 card-hover border border-slate-200"
+              className="bg-white rounded-2xl p-6 card-hover border border-slate-200 shadow-sm"
             >
               <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
                 {feature.icon}
               </div>
               <h3 className="text-slate-900 font-bold text-base mb-2">{feature.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{feature.description}</p>
+              <p
+                className="text-slate-500 text-sm leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: feature.description }}
+              />
             </motion.div>
           ))}
         </div>

@@ -11,13 +11,9 @@ export default function CTASection() {
     <section
       className="section-padding relative overflow-hidden"
       aria-label="Final call to action"
-      style={{
-        background: "linear-gradient(135deg, #1d4ed8 0%, #2563EB 50%, #1e40af 100%)",
-      }}
+      style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #2563EB 50%, #1e40af 100%)" }}
     >
-      {/* Subtle grid overlay */}
       <div className="absolute inset-0 bg-grid opacity-10" aria-hidden="true" />
-
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -27,18 +23,20 @@ export default function CTASection() {
         >
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6">
             <span className="w-2 h-2 rounded-full bg-green-300 animate-pulse" />
-            <span className="text-white font-semibold text-sm">Limited Inventory — Enquire Now</span>
+            <span className="text-white font-semibold text-sm">500+ Developers Already On Siteboard</span>
           </div>
 
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 leading-[1.1]">
-            Your Dream Property
+            Your Inventory.
             <br />
-            is One Call Away.
+            Your Dashboard.
+            <br />
+            Zero Chaos.
           </h2>
 
           <p className="text-blue-100 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-            Stop renting. Stop waiting. Thousands of families have already secured their dream home with Siteboard.
-            Join them today — completely free consultation, zero brokerage.
+            Stop managing your multi-crore real estate projects on WhatsApp and Excel.
+            Get started with Siteboard — India&apos;s smartest Real Estate ERP built for Indian builders.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -47,7 +45,7 @@ export default function CTASection() {
               className="bg-white text-blue-700 font-black px-8 py-4 rounded-2xl text-base hover:bg-blue-50 transition-all hover:-translate-y-0.5 shadow-lg w-full sm:w-auto"
               id="final-cta-primary"
             >
-              Get Free Consultation Today
+              Request a Free Demo
             </button>
             <a
               href="tel:+918449488090"
@@ -59,15 +57,8 @@ export default function CTASection() {
             </a>
           </div>
 
-          {/* Trust row */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-blue-100 text-sm">
-            {[
-              "Zero Brokerage",
-              "RERA Approved",
-              "100% Legal Clearance",
-              "Free Site Visit",
-              "Pan India",
-            ].map((item) => (
+            {["Plots Management", "Apartments", "Houses", "Commercials", "Agent Access", "Real-time Dashboard"].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
                 <span className="text-green-300 font-bold">✓</span>
                 {item}

@@ -31,16 +31,16 @@ export async function POST(request: NextRequest) {
 
     const { formData } = parseResult.data;
 
-    // Save lead directly — no payment needed
+    // Save lead — no payment
     const lead = await prisma.lead.create({
       data: {
         fullName: formData.fullName,
         phone: formData.phone,
         email: formData.email,
-        businessName: formData.city,           // reuse businessName for city
-        platform: formData.propertyType,       // reuse platform for property type
-        budget: formData.budget || null,
-        timeline: formData.timeline || null,
+        businessName: formData.companyName,           // company name
+        platform: formData.propertyType,              // inventory type
+        budget: formData.unitCount || null,           // unit count
+        timeline: formData.city || null,              // city of operations
         projectDescription: formData.message || null,
         paymentStatus: "PENDING",
         isVerified: false,
@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send admin notification email (non-blocking)
     sendAdminNotification({ ...lead, orderId: lead.id, paymentId: "" })
       .catch((e) => console.error("Email error:", e));
 

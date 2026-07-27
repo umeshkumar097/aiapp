@@ -6,10 +6,10 @@ export const LeadFormSchema = z.object({
     .string()
     .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
   email: z.string().email("Enter a valid email address"),
-  city: z.string().min(2, "Please enter your city").max(100),
-  propertyType: z.enum(["plot", "apartment", "villa", "commercial"]),
-  budget: z.string().optional(),
-  timeline: z.string().optional(),
+  companyName: z.string().min(2, "Please enter your company name").max(200),
+  propertyType: z.enum(["plots", "apartments", "houses", "commercial", "mixed"]),
+  unitCount: z.string().optional(),
+  city: z.string().max(100).optional(),
   message: z.string().max(2000).optional(),
   agreeToPrivacy: z
     .boolean()

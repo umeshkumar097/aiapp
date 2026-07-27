@@ -2,39 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
-import toast from "react-hot-toast";
-import { CheckCircle, Building2, MapPin, Phone, MessageSquare } from "lucide-react";
-
-const budgetOptions = [
-  "Under ₹20 Lakh",
-  "₹20L – ₹50L",
-  "₹50L – ₹1 Crore",
-  "₹1Cr – ₹2Cr",
-  "₹2Cr+",
-];
-
-const timelineOptions = [
-  "Immediately",
-  "Within 3 months",
-  "3–6 months",
-  "6–12 months",
-  "Just exploring",
-];
-
-const propertyTypes = [
-  { value: "plot", label: "Plot / Land" },
-  { value: "apartment", label: "Apartment" },
-  { value: "villa", label: "Villa / House" },
-  { value: "commercial", label: "Commercial" },
-] as const;
 
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
   }
 }
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
+import toast from "react-hot-toast";
+import { CheckCircle, Building2, Phone } from "lucide-react";
+
+const unitCountOptions = [
+  "1–50 units",
+  "51–200 units",
+  "201–500 units",
+  "500+ units",
+];
+
+const inventoryTypes = [
+  { value: "plots", label: "Plots" },
+  { value: "apartments", label: "Apartments" },
+  { value: "houses", label: "Houses" },
+  { value: "commercial", label: "Commercial" },
+  { value: "mixed", label: "Mixed" },
+] as const;
 
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -48,7 +41,7 @@ export default function LeadForm() {
     formState: { errors },
   } = useForm<LeadFormInput>({
     resolver: zodResolver(LeadFormSchema),
-    defaultValues: { propertyType: "apartment", agreeToPrivacy: true },
+    defaultValues: { propertyType: "plots", agreeToPrivacy: true },
   });
 
   const propertyType = watch("propertyType");
@@ -97,31 +90,30 @@ export default function LeadForm() {
     "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all";
 
   return (
-    <section id="lead-form" className="section-padding bg-navy-light" aria-label="Property enquiry form">
+    <section id="lead-form" className="section-padding bg-navy-light" aria-label="Demo request form">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
 
-          {/* Left: Info */}
+          {/* Left */}
           <div>
             <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
-              Free Consultation
+              Get Started
             </p>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-5 leading-tight">
-              Tell Us What You&apos;re
+              Request a <span className="gradient-text">Free Demo</span>
               <br />
-              <span className="gradient-text">Looking For</span>
+              for Your Company
             </h2>
             <p className="text-slate-500 text-base leading-relaxed mb-8">
-              Share your requirements and our property expert will call you
-              within 24 hours — no pressure, zero brokerage, completely free.
+              Tell us about your real estate business. Our team will show you exactly how
+              Siteboard can manage your inventory — live, on your own projects.
             </p>
 
             <div className="space-y-4">
               {[
-                { icon: <Building2 size={18} className="text-blue-600" />, title: "RERA Verified Properties", desc: "Every listing is legally vetted and RERA registered." },
-                { icon: <MapPin size={18} className="text-green-600" />, title: "Pan India Coverage", desc: "UP, Pune, Hyderabad, Bengaluru and growing." },
-                { icon: <Phone size={18} className="text-blue-600" />, title: "Expert Calls Within 24 Hrs", desc: "A dedicated property advisor — not a sales bot." },
-                { icon: <MessageSquare size={18} className="text-green-600" />, title: "Zero Brokerage", desc: "No hidden fees. What you see is what you pay." },
+                { icon: <Building2 size={18} className="text-blue-600" />, title: "Live Demo on Your Data", desc: "We demo using your actual project structure." },
+                { icon: <CheckCircle size={18} className="text-green-600" />, title: "No Commitment", desc: "See the platform, then decide. No pressure." },
+                { icon: <Phone size={18} className="text-blue-600" />, title: "Expert Calls Within 24 Hrs", desc: "A real product expert — not a sales bot." },
               ].map((item) => (
                 <div key={item.title} className="flex items-start gap-3">
                   <div className="w-9 h-9 bg-white rounded-xl border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -143,16 +135,16 @@ export default function LeadForm() {
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="text-green-500" size={32} />
                 </div>
-                <h3 className="text-slate-900 text-2xl font-black mb-2">Enquiry Submitted!</h3>
+                <h3 className="text-slate-900 text-2xl font-black mb-2">Demo Requested!</h3>
                 <p className="text-slate-500 text-sm mb-6">
-                  Our expert will call you within 24 hours. Thank you for your interest in Siteboard properties.
+                  Our product expert will call you within 24 hours to schedule your live demo.
                 </p>
                 <a
                   href="tel:+918449488090"
                   className="inline-flex items-center gap-2 btn-gradient text-white font-bold px-6 py-3 rounded-xl"
                 >
                   <Phone size={16} />
-                  Call Us Now: +91 8449488090
+                  Call Us: +91 8449488090
                 </a>
               </div>
             ) : (
@@ -160,8 +152,8 @@ export default function LeadForm() {
                 <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Full Name *</label>
-                      <input {...register("fullName")} type="text" placeholder="Rajesh Sharma" className={inputClass} />
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Your Name *</label>
+                      <input {...register("fullName")} type="text" placeholder="Arvind Mehta" className={inputClass} />
                       {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
                     </div>
                     <div>
@@ -174,25 +166,25 @@ export default function LeadForm() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-slate-700 text-sm font-semibold mb-1.5">Email Address *</label>
-                      <input {...register("email")} type="email" placeholder="rajesh@email.com" className={inputClass} />
+                      <input {...register("email")} type="email" placeholder="you@company.com" className={inputClass} />
                       {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Your City *</label>
-                      <input {...register("city")} type="text" placeholder="Noida, Delhi, Pune..." className={inputClass} />
-                      {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Company Name *</label>
+                      <input {...register("companyName")} type="text" placeholder="Skyline Developers" className={inputClass} />
+                      {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName.message}</p>}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 text-sm font-semibold mb-2">Property Type *</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {propertyTypes.map((p) => (
+                    <label className="block text-slate-700 text-sm font-semibold mb-2">Inventory Type *</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {inventoryTypes.map((p) => (
                         <button
                           key={p.value}
                           type="button"
                           onClick={() => setValue("propertyType", p.value)}
-                          className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                          className={`py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all text-center ${
                             propertyType === p.value
                               ? "bg-blue-600 border-blue-600 text-white shadow-sm"
                               : "bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600"
@@ -206,27 +198,24 @@ export default function LeadForm() {
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Budget Range</label>
-                      <select {...register("budget")} className={inputClass}>
-                        <option value="">Select budget</option>
-                        {budgetOptions.map((b) => <option key={b} value={b}>{b}</option>)}
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Total Units (approx.)</label>
+                      <select {...register("unitCount")} className={inputClass}>
+                        <option value="">Select range</option>
+                        {unitCountOptions.map((u) => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">When to Buy?</label>
-                      <select {...register("timeline")} className={inputClass}>
-                        <option value="">Select timeline</option>
-                        {timelineOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-                      </select>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">City / Location</label>
+                      <input {...register("city")} type="text" placeholder="Noida, Lucknow..." className={inputClass} />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 text-sm font-semibold mb-1.5">Any Specific Requirements?</label>
+                    <label className="block text-slate-700 text-sm font-semibold mb-1.5">Anything specific?</label>
                     <textarea
                       {...register("message")}
-                      rows={3}
-                      placeholder="E.g. East facing plot, near highway, school nearby..."
+                      rows={2}
+                      placeholder="E.g. We manage 3 plot projects and need agent access..."
                       className={inputClass}
                     />
                   </div>
@@ -245,12 +234,12 @@ export default function LeadForm() {
                         Submitting...
                       </span>
                     ) : (
-                      "Get Free Expert Consultation →"
+                      "Request Free Demo →"
                     )}
                   </button>
 
                   <p className="text-slate-400 text-xs text-center">
-                    Zero brokerage · RERA approved · 100% free consultation · No spam
+                    No commitment · Expert calls within 24 hrs · 100% free demo
                   </p>
                 </form>
               </div>

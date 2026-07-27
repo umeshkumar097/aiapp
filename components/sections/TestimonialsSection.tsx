@@ -5,70 +5,70 @@ import { Star } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Rajesh Sharma",
-    location: "Noida, UP",
-    property: "Plot — Siteboard City Phase 1",
+    name: "Arvind Mehta",
+    company: "Skyline Developers, Noida",
+    role: "Managing Director",
     rating: 5,
     review:
-      "I was confused about where to invest. The Siteboard team guided me honestly — no pressure, just facts. I booked a plot and it has already appreciated 20% in 18 months. Best decision of my life.",
-    initials: "RS",
+      "Before Siteboard, we used to manage 200+ plots in Excel. Double bookings were a nightmare. Now everything is on one dashboard — my agents, my staff, my customers. Complete clarity.",
+    initials: "AM",
     color: "bg-blue-100 text-blue-700",
   },
   {
-    name: "Priya Agarwal",
-    location: "Delhi NCR",
-    property: "2BHK Apartment — Siteboard Residency",
+    name: "Pradeep Gupta",
+    company: "Apex Group, Lucknow",
+    role: "Director",
     rating: 5,
     review:
-      "From site visit to loan approval, everything was handled by the team. No hidden charges, complete transparency. Possession was on time and the apartment is exactly as promised.",
-    initials: "PA",
+      "We manage 3 apartment projects simultaneously. Siteboard gives us a single view of all units — available, booked, sold — in real time. Our sales team is 3x faster now.",
+    initials: "PG",
     color: "bg-green-100 text-green-700",
   },
   {
-    name: "Mohit Gupta",
-    location: "Gurugram, Haryana",
-    property: "Villa — Siteboard Green Villas",
+    name: "Ramesh Agarwal",
+    company: "Terra Infra, Greater Noida",
+    role: "Founder",
     rating: 5,
     review:
-      "I was skeptical about buying property online, but the Siteboard team addressed every concern. Legal documentation was spotless. I recommend them to everyone in my family.",
-    initials: "MG",
+      "The agent view-only access is brilliant. I can give my channel partners real-time inventory access without worrying about data misuse. This system is built for Indian developers.",
+    initials: "RA",
     color: "bg-amber-100 text-amber-700",
   },
   {
-    name: "Sunita Verma",
-    location: "Lucknow, UP",
-    property: "Commercial Shop",
+    name: "Sunil Sharma",
+    company: "Urban Space Builders, Agra",
+    role: "CEO",
     rating: 5,
     review:
-      "I wanted a rental income property and they found me the perfect commercial shop. The rental yield has been exceptional. Their after-sales support is also superb.",
-    initials: "SV",
+      "We had a double booking incident that cost us a customer and a lot of trust. After Siteboard, it has never happened again. The zero double booking guarantee actually works.",
+    initials: "SS",
     color: "bg-blue-100 text-blue-700",
   },
   {
-    name: "Anil Thakur",
-    location: "Pune, Maharashtra",
-    property: "Plot — Siteboard City Phase 1",
+    name: "Kavita Jain",
+    company: "Green Homes Pvt. Ltd., Pune",
+    role: "Operations Head",
     rating: 5,
     review:
-      "The RERA registration and clear title gave me the confidence to invest. The Siteboard team is professional, responsive, and trustworthy. My plot is already showing great appreciation.",
-    initials: "AT",
+      "Managing houses and commercial units together was impossible on spreadsheets. Siteboard&apos;s separate modules for each type make it so clean. Even our non-tech staff loves it.",
+    initials: "KJ",
     color: "bg-green-100 text-green-700",
   },
   {
-    name: "Kavita Singh",
-    location: "Agra, UP",
-    property: "3BHK Apartment",
+    name: "Deepak Verma",
+    company: "Pioneer Real Estate, Meerut",
+    role: "Director",
     rating: 5,
     review:
-      "What I loved most is how transparent they were about everything — price, timeline, approvals. Zero surprises. The handover ceremony was a memorable experience for my entire family.",
-    initials: "KS",
+      "The company dashboard gives me a bird&apos;s eye view of all projects every morning. I know exactly how many units are available, how many are booked — no calls, no confusion.",
+    initials: "DV",
     color: "bg-amber-100 text-amber-700",
   },
 ];
 
 export default function TestimonialsSection() {
   return (
-    <section className="section-padding bg-navy-light" aria-label="Customer testimonials">
+    <section id="testimonials" className="section-padding bg-navy-light" aria-label="Customer testimonials">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -78,13 +78,13 @@ export default function TestimonialsSection() {
           className="text-center mb-12"
         >
           <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
-            Happy Families
+            Developer Stories
           </p>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
-            Trusted by <span className="gradient-text">500+ Families</span> Across India
+            Trusted by <span className="gradient-text">500+ Developers</span> Across India
           </h2>
           <p className="text-slate-500 text-base max-w-xl mx-auto">
-            Real reviews from real customers who found their dream property with Siteboard.
+            Real estate builders who switched from WhatsApp & Excel to Siteboard.
           </p>
         </motion.div>
 
@@ -98,25 +98,23 @@ export default function TestimonialsSection() {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="bg-white rounded-2xl p-6 border border-slate-200 card-hover shadow-sm"
             >
-              {/* Stars */}
               <div className="flex gap-0.5 mb-4">
                 {Array.from({ length: t.rating }).map((_, j) => (
                   <Star key={j} size={14} className="fill-amber-400 text-amber-400" />
                 ))}
               </div>
-
-              <p className="text-slate-700 text-sm leading-relaxed mb-5 italic">
-                &ldquo;{t.review}&rdquo;
-              </p>
-
+              <p
+                className="text-slate-700 text-sm leading-relaxed mb-5 italic"
+                dangerouslySetInnerHTML={{ __html: `&ldquo;${t.review}&rdquo;` }}
+              />
               <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${t.color}`}>
                   {t.initials}
                 </div>
                 <div>
                   <p className="text-slate-900 font-bold text-sm">{t.name}</p>
-                  <p className="text-slate-400 text-xs">{t.location}</p>
-                  <p className="text-blue-600 text-xs font-medium">{t.property}</p>
+                  <p className="text-slate-400 text-xs">{t.role}</p>
+                  <p className="text-blue-600 text-xs font-medium">{t.company}</p>
                 </div>
               </div>
             </motion.div>

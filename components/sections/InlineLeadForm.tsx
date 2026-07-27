@@ -5,29 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
 import toast from "react-hot-toast";
-import { CheckCircle, Building2, MapPin, Phone } from "lucide-react";
+import { CheckCircle, Building2, Phone } from "lucide-react";
 
-const budgetOptions = [
-  "Under ₹20 Lakh",
-  "₹20L – ₹50L",
-  "₹50L – ₹1 Crore",
-  "₹1Cr – ₹2Cr",
-  "₹2Cr+",
-];
-
-const timelineOptions = [
-  "Immediately",
-  "Within 3 months",
-  "3–6 months",
-  "6–12 months",
-  "Just exploring",
-];
-
-const propertyTypes = [
-  { value: "plot", label: "Plot / Land" },
-  { value: "apartment", label: "Apartment" },
-  { value: "villa", label: "Villa / House" },
+const inventoryTypes = [
+  { value: "plots", label: "Plots" },
+  { value: "apartments", label: "Apartments" },
+  { value: "houses", label: "Houses" },
   { value: "commercial", label: "Commercial" },
+  { value: "mixed", label: "Mixed" },
 ] as const;
 
 interface InlineFormProps {
@@ -47,7 +32,7 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
     formState: { errors },
   } = useForm<LeadFormInput>({
     resolver: zodResolver(LeadFormSchema),
-    defaultValues: { propertyType: "apartment", agreeToPrivacy: true },
+    defaultValues: { propertyType: "plots", agreeToPrivacy: true },
   });
 
   const propertyType = watch("propertyType");
@@ -83,9 +68,8 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
       }
       setSubmitted(true);
       onSuccess?.();
-      // Meta Pixel lead event
-      if (typeof window !== "undefined" && window.fbq) {
-        window.fbq("track", "Lead");
+      if (typeof window !== "undefined" && (window as { fbq?: (...args: unknown[]) => void }).fbq) {
+        (window as { fbq?: (...args: unknown[]) => void }).fbq!("track", "Lead");
       }
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -103,9 +87,9 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
         <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="text-green-500" size={32} />
         </div>
-        <h3 className="text-slate-900 text-xl font-bold mb-2">Enquiry Submitted!</h3>
+        <h3 className="text-slate-900 text-xl font-bold mb-2">Demo Requested!</h3>
         <p className="text-slate-500 text-sm">
-          Our expert will call you within 24 hours. Thank you for your interest.
+          Our product expert will call you within 24 hours. Thank you for your interest.
         </p>
         <div className="mt-4 flex items-center justify-center gap-2 text-blue-600 text-sm font-medium">
           <Phone size={16} />
@@ -121,17 +105,17 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
         <div className="mb-6">
           <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-3 py-1.5 mb-3">
             <Building2 size={14} className="text-blue-600" />
-            <span className="text-blue-700 font-semibold text-xs">Free Expert Consultation</span>
+            <span className="text-blue-700 font-semibold text-xs">Free Demo — No Commitment</span>
           </div>
-          <h3 className="text-slate-900 text-xl font-black">Get Property Details</h3>
-          <p className="text-slate-500 text-sm mt-1">Fill in below — our expert calls you within 24 hrs</p>
+          <h3 className="text-slate-900 text-xl font-black">Request a Live Demo</h3>
+          <p className="text-slate-500 text-sm mt-1">Our expert calls you within 24 hrs</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <input {...register("fullName")} type="text" placeholder="Full Name *" className={inputClass} />
+            <input {...register("fullName")} type="text" placeholder="Your Name *" className={inputClass} />
             {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
           </div>
           <div>
@@ -145,21 +129,20 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
         </div>
 
-        <div className="relative">
-          <MapPin size={16} className="absolute left-3 top-3.5 text-slate-400" />
-          <input {...register("city")} type="text" placeholder="Your City *" className={`${inputClass} pl-9`} />
-          {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+        <div>
+          <input {...register("companyName")} type="text" placeholder="Company Name *" className={inputClass} />
+          {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName.message}</p>}
         </div>
 
         <div>
-          <p className="text-slate-600 text-xs font-medium mb-2">Property Type *</p>
-          <div className="grid grid-cols-2 gap-2">
-            {propertyTypes.map((p) => (
+          <p className="text-slate-600 text-xs font-medium mb-2">Inventory Type *</p>
+          <div className="grid grid-cols-5 gap-1.5">
+            {inventoryTypes.map((p) => (
               <button
                 key={p.value}
                 type="button"
                 onClick={() => setValue("propertyType", p.value)}
-                className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                className={`py-2 px-1 rounded-xl border text-xs font-semibold transition-all text-center ${
                   propertyType === p.value
                     ? "bg-blue-600 border-blue-600 text-white shadow-sm"
                     : "bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600"
@@ -171,15 +154,7 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
           </div>
         </div>
 
-        <select {...register("budget")} className={inputClass}>
-          <option value="">Budget Range</option>
-          {budgetOptions.map((b) => <option key={b} value={b}>{b}</option>)}
-        </select>
-
-        <select {...register("timeline")} className={inputClass}>
-          <option value="">When do you plan to buy?</option>
-          {timelineOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <input {...register("city")} type="text" placeholder="City / Location" className={inputClass} />
 
         <button
           type="submit"
@@ -195,12 +170,12 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
               Submitting...
             </span>
           ) : (
-            "Get Free Consultation →"
+            "Request Free Demo →"
           )}
         </button>
 
         <p className="text-slate-400 text-xs text-center">
-          Zero brokerage · RERA approved · 100% free consultation
+          No commitment · 100% free · Expert callback in 24 hrs
         </p>
       </form>
     </div>
