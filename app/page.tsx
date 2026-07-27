@@ -4,6 +4,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import StatsSection from "@/components/sections/StatsSection";
 import ProblemSection from "@/components/sections/ProblemSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
+import LiveDashboardSection from "@/components/sections/LiveDashboardSection";
 import WhatWeBuild from "@/components/sections/WhatWeBuild";
 import Portfolio from "@/components/sections/Portfolio";
 import ProcessSection from "@/components/sections/ProcessSection";
@@ -25,6 +26,7 @@ export default function HomePage() {
         <StatsSection />
         <ProblemSection />
         <FeaturesSection />
+        <LiveDashboardSection />
         <WhatWeBuild />
         <Portfolio />
         <ProcessSection />
