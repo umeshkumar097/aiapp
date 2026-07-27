@@ -1,172 +1,121 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Shield, FileText, Clock, Sparkles, Flame, Rocket } from "lucide-react";
-import GradientButton from "@/components/ui/GradientButton";
+import { Building2, CheckCircle, MapPin, Phone, TrendingUp, Shield } from "lucide-react";
 import InlineLeadForm from "@/components/sections/InlineLeadForm";
 
 const trustItems = [
-  { icon: <Star size={14} className="fill-amber-400 text-amber-400" />, label: "Google Rated 4.9★" },
-  { icon: <Shield size={14} className="text-green-400" />, label: "500+ Projects" },
-  { icon: <FileText size={14} className="text-blue-400" />, label: "GST Invoice" },
-  { icon: <Clock size={14} className="text-purple-400" />, label: "1 Year Support" },
-  { icon: <Shield size={14} className="text-green-400" />, label: "100% Secure" },
+  { icon: <Shield size={14} className="text-blue-600" />, label: "RERA Approved" },
+  { icon: <CheckCircle size={14} className="text-green-600" />, label: "Zero Brokerage" },
+  { icon: <TrendingUp size={14} className="text-blue-600" />, label: "500+ Families" },
+  { icon: <MapPin size={14} className="text-green-600" />, label: "Pan India" },
 ];
 
-function Particle({ x, y, size, duration }: { x: string; y: string; size: number; duration: number }) {
-  return (
-    <motion.div
-      className="absolute rounded-full bg-blue-500/30 pointer-events-none"
-      style={{ left: x, top: y, width: size, height: size }}
-      animate={{ y: [0, -80, 0], opacity: [0.3, 0.8, 0.3], scale: [1, 1.5, 1] }}
-      transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
-    />
-  );
-}
-
 export default function HeroSection() {
-  const particles = [
-    { x: "10%", y: "20%", size: 6, duration: 4 },
-    { x: "80%", y: "15%", size: 4, duration: 5 },
-    { x: "60%", y: "70%", size: 8, duration: 6 },
-    { x: "25%", y: "80%", size: 5, duration: 3.5 },
-    { x: "90%", y: "50%", size: 7, duration: 4.5 },
-    { x: "45%", y: "10%", size: 3, duration: 5.5 },
-    { x: "5%", y: "60%", size: 5, duration: 4 },
-  ];
-
-  const handleCTA = () => {
-    document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handlePortfolio = () => {
-    document.getElementById("portfolio")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section
-      className="relative min-h-[90vh] flex items-center overflow-hidden bg-navy pt-20"
+      className="relative bg-hero overflow-hidden pt-16"
       aria-label="Hero section"
     >
-      {/* Animated grid bg */}
-      <div className="absolute inset-0 bg-grid opacity-40" aria-hidden="true" />
+      {/* Subtle grid bg */}
+      <div className="absolute inset-0 bg-grid opacity-60" aria-hidden="true" />
 
-      {/* Radial glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Floating particles */}
-      {particles.map((p, i) => (
-        <Particle key={i} {...p} />
-      ))}
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Text */}
           <div>
             {/* Badge */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 mb-6"
             >
-              <div className="badge-glow flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2">
-                <Flame size={15} className="text-orange-400" />
-                <span className="text-green-400 font-bold text-sm tracking-wide uppercase">
-                  Limited Time Offer
+              <div className="flex items-center gap-2 bg-blue-600 rounded-full px-4 py-2">
+                <Building2 size={14} className="text-white" />
+                <span className="text-white font-bold text-sm tracking-wide uppercase">
+                  India&apos;s Smartest Real Estate Platform
                 </span>
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-green-300 animate-pulse" />
               </div>
             </motion.div>
 
             {/* Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6"
+              className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-slate-900 leading-[1.1] tracking-tight mb-5"
             >
-              Build Your
+              Find Your
               <br />
-              <span className="gradient-text">Android & iOS</span>
+              <span className="gradient-text">Dream Property</span>
               <br />
-              Starting at
-              <br />
-              <span className="relative inline-flex items-center gap-2">
-                <span className="gradient-text">₹49,999</span>
-                <span className="text-slate-400 text-xl font-normal">+ Taxes</span>
-                <Sparkles size={28} className="text-amber-400 animate-pulse inline" />
-              </span>
+              Across India
             </motion.h1>
 
             {/* Subheading */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-slate-300 text-lg leading-relaxed mb-8 max-w-lg"
+              className="text-slate-600 text-lg leading-relaxed mb-6 max-w-lg"
             >
-              Launch a premium mobile app for your business with beautiful UI, admin panel,
-              full source code, Play Store & App Store publishing — backed by 1 year of dedicated support.
+              RERA-approved plots, apartments, villas & commercial spaces
+              across India. Get expert guidance with zero brokerage and
+              100% legal clearance.
             </motion.p>
 
-            {/* CTAs */}
+            {/* Stats row */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-3 mb-10"
+              className="grid grid-cols-3 gap-4 mb-8 max-w-sm"
             >
-              <GradientButton
-                size="xl"
-                onClick={handleCTA}
-                className="rounded-2xl"
-                id="hero-primary-cta"
-                icon={<Rocket size={20} />}
-              >
-                Start My Project
-              </GradientButton>
-              <GradientButton
-                variant="secondary"
-                size="xl"
-                onClick={handlePortfolio}
-                className="rounded-2xl"
-                id="hero-portfolio-cta"
-              >
-                View Portfolio
-              </GradientButton>
+              {[
+                { value: "500+", label: "Happy Families" },
+                { value: "50+", label: "Projects" },
+                { value: "15+", label: "Years Exp." },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center bg-white rounded-2xl p-3 border border-slate-100 shadow-sm">
+                  <p className="text-2xl font-black text-blue-600">{stat.value}</p>
+                  <p className="text-slate-500 text-xs mt-0.5">{stat.label}</p>
+                </div>
+              ))}
             </motion.div>
 
-            {/* Trust row */}
+            {/* Trust badges */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-wrap gap-3"
+              className="flex flex-wrap gap-2"
             >
-              {trustItems.map((item, i) => (
+              {trustItems.map((item) => (
                 <div
-                  key={i}
-                  className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5"
+                  key={item.label}
+                  className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-3 py-1.5 shadow-sm"
                 >
                   {item.icon}
-                  <span className="text-slate-300 text-xs font-medium">{item.label}</span>
+                  <span className="text-slate-700 text-xs font-medium">{item.label}</span>
                 </div>
               ))}
+              <a
+                href="tel:+918449488090"
+                className="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-full px-3 py-1.5 hover:bg-green-100 transition-colors"
+              >
+                <Phone size={14} className="text-green-600" />
+                <span className="text-green-700 text-xs font-semibold">+91 8449488090</span>
+              </a>
             </motion.div>
           </div>
 
-          {/* Right: Inline Lead Form — visible immediately */}
+          {/* Right: Inline Lead Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             className="w-full"
           >
             <InlineLeadForm />
@@ -176,7 +125,7 @@ export default function HeroSection() {
 
       {/* Bottom fade */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-navy to-transparent"
+        className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent"
         aria-hidden="true"
       />
     </section>

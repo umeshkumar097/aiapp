@@ -6,13 +6,11 @@ export const LeadFormSchema = z.object({
     .string()
     .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
   email: z.string().email("Enter a valid email address"),
-  company: z.string().max(200).optional(),
-  businessName: z.string().max(200).optional(),
-  projectName: z.string().max(200).optional(),
-  projectDescription: z.string().max(2000).optional(),
+  city: z.string().min(2, "Please enter your city").max(100),
+  propertyType: z.enum(["plot", "apartment", "villa", "commercial"]),
   budget: z.string().optional(),
   timeline: z.string().optional(),
-  platform: z.enum(["android", "ios", "both"]),
+  message: z.string().max(2000).optional(),
   agreeToPrivacy: z
     .boolean()
     .refine((val) => val === true, {
@@ -27,12 +25,8 @@ export const LeadFormSchema = z.object({
   utmContent: z.string().max(200).optional(),
 });
 
-export const CreateOrderSchema = z.object({
+export const SubmitLeadSchema = z.object({
   formData: LeadFormSchema.omit({ agreeToPrivacy: true }),
-});
-
-export const VerifyPaymentSchema = z.object({
-  orderId: z.string().min(1).max(200),
 });
 
 export const AdminLoginSchema = z.object({
@@ -41,5 +35,4 @@ export const AdminLoginSchema = z.object({
 });
 
 export type LeadFormInput = z.infer<typeof LeadFormSchema>;
-export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
-export type VerifyPaymentInput = z.infer<typeof VerifyPaymentSchema>;
+export type SubmitLeadInput = z.infer<typeof SubmitLeadSchema>;

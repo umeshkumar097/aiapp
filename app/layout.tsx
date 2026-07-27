@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aiclex.in";
+const rawUrl = process.env.NEXT_PUBLIC_APP_URL || "https://siteboard.in";
 const APP_URL = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 const GADS_ID = process.env.NEXT_PUBLIC_GADS_ID || "AW-18336858770";
@@ -11,48 +11,48 @@ const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "902291945914083"
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Android & iOS App Development — Only ₹49,999 | Aiclex Solutions",
-    template: "%s | Aiclex Solutions",
+    default: "Siteboard — India's Smartest Real Estate CRM | Pan India Properties",
+    template: "%s | Siteboard",
   },
   description:
-    "Build your Android + iOS mobile app for only ₹49,999. Includes source code, admin panel, Play Store & App Store publishing, and 1 year support. 500+ projects delivered. GST invoice provided.",
+    "Siteboard by Aiclex Technologies — Find RERA-approved plots, apartments & villas across India. Get expert guidance, zero brokerage, and 100% legal clearance. Enquire now.",
   keywords: [
-    "mobile app development India",
-    "Android app development",
-    "iOS app development",
-    "app development ₹49999",
-    "mobile app developer Mumbai",
-    "cheap app development India",
-    "custom mobile app development",
-    "restaurant app development",
-    "ecommerce app development India",
+    "real estate India",
+    "plots for sale Noida",
+    "buy apartment India",
+    "RERA approved property",
+    "real estate CRM India",
+    "affordable housing India",
+    "villa for sale India",
+    "property investment India",
+    "Siteboard real estate",
   ],
-  authors: [{ name: "Aiclex Solutions Private Limited" }],
-  creator: "Aiclex Solutions",
-  publisher: "Aiclex Solutions Private Limited",
+  authors: [{ name: "Aiclex Technologies" }],
+  creator: "Siteboard by Aiclex Technologies",
+  publisher: "Aiclex Technologies",
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: APP_URL,
-    siteName: "Aiclex Solutions",
-    title: "Android & iOS App Development — Only ₹49,999 | Aiclex Solutions",
+    siteName: "Siteboard",
+    title: "Siteboard — India's Smartest Real Estate CRM",
     description:
-      "Build a premium Android + iOS app for ₹49,999. Source code included. Play Store & App Store support. 1 year support. 500+ projects. GST invoice.",
+      "Find RERA-approved plots, apartments & villas across India. Expert guidance, zero brokerage, 100% legal clearance.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Aiclex Solutions — Mobile App Development at ₹49,999",
+        alt: "Siteboard — India's Smartest Real Estate Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Android & iOS App Development — Only ₹49,999",
-    description: "Premium mobile app development for Indian businesses. Source code included.",
+    title: "Siteboard — India's Smartest Real Estate CRM",
+    description: "Find RERA-approved properties across India. Expert guidance, zero brokerage.",
     images: ["/og-image.png"],
-    creator: "@aiclexsolutions",
+    creator: "@siteboard_in",
   },
   robots: {
     index: true,
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0F172A",
+  themeColor: "#2563EB",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -87,47 +87,32 @@ const schemaOrg = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
+      "@type": "RealEstateAgent",
       "@id": `${APP_URL}/#organization`,
-      name: "Aiclex Solutions Private Limited",
+      name: "Siteboard by Aiclex Technologies",
       url: APP_URL,
-      logo: `${APP_URL}/logo.png`,
-      description: "Mobile app development company in India offering Android, iOS, and cross-platform apps.",
+      description: "India's smartest real estate platform — RERA-approved plots, apartments & villas Pan India.",
       address: {
         "@type": "PostalAddress",
-        addressLocality: "Mumbai",
-        addressRegion: "Maharashtra",
+        streetAddress: "Sector 3",
+        addressLocality: "Noida",
+        addressRegion: "Uttar Pradesh",
+        postalCode: "201301",
         addressCountry: "IN",
       },
       contactPoint: {
         "@type": "ContactPoint",
-        telephone: "+91-99999-99999",
+        telephone: "+91-8449488090",
         contactType: "customer service",
         availableLanguage: ["English", "Hindi"],
       },
-      sameAs: [
-        "https://g.page/aiclex-solutions",
-      ],
     },
     {
       "@type": "WebSite",
       "@id": `${APP_URL}/#website`,
       url: APP_URL,
-      name: "Aiclex Solutions",
+      name: "Siteboard",
       publisher: { "@id": `${APP_URL}/#organization` },
-    },
-    {
-      "@type": "Service",
-      name: "Mobile App Development",
-      provider: { "@id": `${APP_URL}/#organization` },
-      description: "Android and iOS mobile app development for Indian businesses at ₹49,999.",
-      areaServed: "IN",
-      offers: {
-        "@type": "Offer",
-        price: "49999",
-        priceCurrency: "INR",
-        description: "Android + iOS App with source code, admin panel, and 1 year support",
-      },
     },
   ],
 };
@@ -202,14 +187,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           toastOptions={{
             duration: 4000,
             style: {
-              background: "#1e293b",
-              color: "#f1f5f9",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "#ffffff",
+              color: "#1e293b",
+              border: "1px solid #e2e8f0",
               borderRadius: "12px",
               fontSize: "14px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
             },
             success: {
-              iconTheme: { primary: "#22C55E", secondary: "#fff" },
+              iconTheme: { primary: "#16a34a", secondary: "#fff" },
             },
             error: {
               iconTheme: { primary: "#ef4444", secondary: "#fff" },

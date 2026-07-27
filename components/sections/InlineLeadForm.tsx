@@ -4,25 +4,40 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
-import PaymentModal from "@/components/ui/PaymentModal";
 import toast from "react-hot-toast";
+import { CheckCircle, Building2, MapPin, Phone } from "lucide-react";
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Cashfree?: any;
-  }
-}
+const budgetOptions = [
+  "Under ₹20 Lakh",
+  "₹20L – ₹50L",
+  "₹50L – ₹1 Crore",
+  "₹1Cr – ₹2Cr",
+  "₹2Cr+",
+];
+
+const timelineOptions = [
+  "Immediately",
+  "Within 3 months",
+  "3–6 months",
+  "6–12 months",
+  "Just exploring",
+];
+
+const propertyTypes = [
+  { value: "plot", label: "Plot / Land" },
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa / House" },
+  { value: "commercial", label: "Commercial" },
+] as const;
 
 interface InlineFormProps {
   compact?: boolean;
+  onSuccess?: () => void;
 }
 
-export default function InlineLeadForm({ compact = false }: InlineFormProps) {
-  const [showModal, setShowModal] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentSession, setPaymentSession] = useState<{ orderId: string; paymentSessionId: string } | null>(null);
-  const [formLoading, setFormLoading] = useState(false);
+export default function InlineLeadForm({ compact = false, onSuccess }: InlineFormProps) {
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -32,11 +47,10 @@ export default function InlineLeadForm({ compact = false }: InlineFormProps) {
     formState: { errors },
   } = useForm<LeadFormInput>({
     resolver: zodResolver(LeadFormSchema),
-    defaultValues: { platform: "both", agreeToPrivacy: true },
+    defaultValues: { propertyType: "apartment", agreeToPrivacy: true },
   });
 
-  const platform = watch("platform");
-  const customerName = watch("fullName");
+  const propertyType = watch("propertyType");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -54,178 +68,141 @@ export default function InlineLeadForm({ compact = false }: InlineFormProps) {
     });
   }, [setValue]);
 
-  useEffect(() => {
-    if (document.getElementById("cashfree-js")) return;
-    const script = document.createElement("script");
-    script.id = "cashfree-js";
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
-
   const onSubmit = async (data: LeadFormInput) => {
-    setFormLoading(true);
+    setLoading(true);
     try {
-      const res = await fetch("/api/create-order", {
+      const res = await fetch("/api/submit-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data }),
       });
-
-      const responseData = await res.json();
-
-      if (!res.ok || !responseData.paymentSessionId) {
-        toast.error(responseData.error || "Failed to process. Please try again.");
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Something went wrong. Please try again.");
         return;
       }
-
-      setPaymentSession({
-        orderId: responseData.orderId,
-        paymentSessionId: responseData.paymentSessionId,
-      });
-      setShowModal(true);
-    } catch (error) {
-      console.error("Form submit error:", error);
+      setSubmitted(true);
+      onSuccess?.();
+      // Meta Pixel lead event
+      if (typeof window !== "undefined" && window.fbq) {
+        window.fbq("track", "Lead");
+      }
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
-      setFormLoading(false);
-    }
-  };
-
-  const handlePayNow = async () => {
-    if (!paymentSession) return;
-    setPaymentLoading(true);
-    try {
-      if (!window.Cashfree) {
-        toast.error("Payment gateway loading... Please try in 3 seconds.");
-        setPaymentLoading(false);
-        return;
-      }
-      const cashfree = window.Cashfree({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV || "production",
-      });
-      cashfree.checkout({
-        paymentSessionId: paymentSession.paymentSessionId,
-        returnUrl: `${window.location.origin}/api/verify-payment?orderId=${paymentSession.orderId}&redirect=true`,
-        redirectTarget: "_self",
-      });
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("Something went wrong. Please try again.");
-      setPaymentLoading(false);
+      setLoading(false);
     }
   };
 
   const inputClass =
-    "w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50 transition-all";
+    "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all";
+
+  if (submitted) {
+    return (
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 text-center">
+        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="text-green-500" size={32} />
+        </div>
+        <h3 className="text-slate-900 text-xl font-bold mb-2">Enquiry Submitted!</h3>
+        <p className="text-slate-500 text-sm">
+          Our expert will call you within 24 hours. Thank you for your interest.
+        </p>
+        <div className="mt-4 flex items-center justify-center gap-2 text-blue-600 text-sm font-medium">
+          <Phone size={16} />
+          <a href="tel:+918449488090">+91 8449488090</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className={`glass-dark rounded-3xl border border-white/10 ${compact ? "p-5" : "p-6 md:p-8"}`}>
-        {!compact && (
-          <div className="mb-5">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-3 py-1.5 mb-3">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-green-400 font-semibold text-xs">Free Consultation — Just ₹99 Token</span>
-            </div>
-            <h3 className="text-white text-xl font-black">Start Your App Project</h3>
-            <p className="text-slate-400 text-sm mt-1">Fill below — takes 60 seconds</p>
+    <div className={`bg-white rounded-3xl border border-slate-200 shadow-md ${compact ? "p-5" : "p-6 md:p-8"}`}>
+      {!compact && (
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-3 py-1.5 mb-3">
+            <Building2 size={14} className="text-blue-600" />
+            <span className="text-blue-700 font-semibold text-xs">Free Expert Consultation</span>
           </div>
-        )}
+          <h3 className="text-slate-900 text-xl font-black">Get Property Details</h3>
+          <p className="text-slate-500 text-sm mt-1">Fill in below — our expert calls you within 24 hrs</p>
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <input
-                {...register("fullName")}
-                type="text"
-                placeholder="Full Name *"
-                className={inputClass}
-              />
-              {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName.message}</p>}
-            </div>
-            <div>
-              <input
-                {...register("phone")}
-                type="tel"
-                placeholder="Phone Number *"
-                className={inputClass}
-                maxLength={10}
-              />
-              {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>}
-            </div>
-          </div>
-
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="Email Address *"
-              className={inputClass}
-            />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+            <input {...register("fullName")} type="text" placeholder="Full Name *" className={inputClass} />
+            {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
           </div>
-
           <div>
-            <input
-              {...register("businessName")}
-              type="text"
-              placeholder="Business Name"
-              className={inputClass}
-            />
+            <input {...register("phone")} type="tel" placeholder="Phone Number *" className={inputClass} maxLength={10} />
+            {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
           </div>
+        </div>
 
-          <div>
-            <p className="text-slate-400 text-xs mb-2">Platform *</p>
-            <div className="grid grid-cols-3 gap-2">
-              {(["android", "ios", "both"] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setValue("platform", p)}
-                  className={`py-2 px-2 rounded-xl border text-xs font-semibold transition-all ${
-                    platform === p
-                      ? "bg-blue-600 border-blue-500 text-white"
-                      : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {p === "android" ? "Android" : p === "ios" ? "iOS" : "Both"}
-                </button>
-              ))}
-            </div>
+        <div>
+          <input {...register("email")} type="email" placeholder="Email Address *" className={inputClass} />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+        </div>
+
+        <div className="relative">
+          <MapPin size={16} className="absolute left-3 top-3.5 text-slate-400" />
+          <input {...register("city")} type="text" placeholder="Your City *" className={`${inputClass} pl-9`} />
+          {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+        </div>
+
+        <div>
+          <p className="text-slate-600 text-xs font-medium mb-2">Property Type *</p>
+          <div className="grid grid-cols-2 gap-2">
+            {propertyTypes.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setValue("propertyType", p.value)}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                  propertyType === p.value
+                    ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={formLoading}
-            className="w-full btn-gradient text-white font-black py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed mt-1"
-          >
-            {formLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                Saving...
-              </span>
-            ) : (
-              "Submit & Reserve Slot →"
-            )}
-          </button>
+        <select {...register("budget")} className={inputClass}>
+          <option value="">Budget Range</option>
+          {budgetOptions.map((b) => <option key={b} value={b}>{b}</option>)}
+        </select>
 
-          <p className="text-slate-500 text-xs text-center">
-            100% secure · GST Invoice · Refundable token
-          </p>
-        </form>
-      </div>
+        <select {...register("timeline")} className={inputClass}>
+          <option value="">When do you plan to buy?</option>
+          {timelineOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
 
-      <PaymentModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onPayNow={handlePayNow}
-        loading={paymentLoading}
-        customerName={customerName}
-      />
-    </>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full btn-gradient text-white font-bold py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Submitting...
+            </span>
+          ) : (
+            "Get Free Consultation →"
+          )}
+        </button>
+
+        <p className="text-slate-400 text-xs text-center">
+          Zero brokerage · RERA approved · 100% free consultation
+        </p>
+      </form>
+    </div>
   );
 }

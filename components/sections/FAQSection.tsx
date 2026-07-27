@@ -6,152 +6,102 @@ import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
-    q: "Why is the app priced at ₹49,999?",
-    a: "₹49,999 includes a complete Android + iOS app with beautiful UI, admin panel, API integrations, Play Store & App Store publishing, and 1 year of support. Most agencies charge ₹2–5 lakh for the same. We maintain lower costs by having an in-house team without agency overhead, passing the savings to you.",
+    q: "Are your projects RERA registered?",
+    a: "Yes, all Siteboard projects are RERA registered and compliant. You can verify our RERA number on the official state RERA portal. We provide full documentation before you book.",
   },
   {
-    q: "Is the ₹99 verification fee really refundable?",
-    a: "Yes, 100% refundable — no fine print. If you proceed with development, the ₹99 is adjusted in your final project invoice (you pay less). If you decide not to proceed for any reason, simply WhatsApp or email us requesting a refund and we'll process it within 3-5 business days. No questions asked.",
+    q: "Is there any brokerage or hidden charges?",
+    a: "Absolutely not. Siteboard operates with zero brokerage and complete price transparency. The price you see is the price you pay — no hidden charges, no surprise fees at registration.",
   },
   {
-    q: "How many days will it take to deliver the app?",
-    a: "Typical delivery is 45–90 days depending on the complexity of features. A standard app (booking, listing, delivery) takes 45–60 days. CRM/ERP or complex marketplace apps take 60–90 days. We provide a detailed milestone-based timeline upfront before starting.",
+    q: "Can I get a home loan for properties listed on Siteboard?",
+    a: "Yes. Our properties are approved by all leading banks including SBI, HDFC, ICICI, and Axis Bank. Our team will assist you through the entire loan application and approval process at no extra cost.",
   },
   {
-    q: "Will I receive the complete source code?",
-    a: "Yes, absolutely. You receive 100% of the source code — Android, iOS, admin panel, and backend API. The code is fully yours. No hidden licensing fees, no lock-in. You can take it to any other developer in the future if needed.",
+    q: "What documents do I need to book a property?",
+    a: "For initial booking you only need your Aadhaar card, PAN card, and a booking amount. Our team will guide you through the complete documentation — sale agreement, registry, and possession letter.",
   },
   {
-    q: "Do you handle Play Store and App Store submission?",
-    a: "Yes! We handle the complete submission process for both Google Play Store and Apple App Store. This includes app store optimization (ASO), screenshots, descriptions, and handling any rejection feedback from the stores. You just need to create developer accounts (we guide you through this).",
+    q: "How do you ensure legal clearance of the property?",
+    a: "Every property goes through a rigorous legal verification process — title check, encumbrance certificate, RERA registration, and municipality approvals. We never list a property with pending legal issues.",
   },
   {
-    q: "Are there any hidden charges after ₹49,999?",
-    a: "No hidden charges whatsoever. The ₹49,999 covers everything listed. The only additional costs you may incur are: Google Play Developer Account (₹1,750 one-time), Apple Developer Account ($99/year), and third-party API costs (like SMS, email, payment gateway — based on your usage). All of this is explained clearly before you start.",
+    q: "What happens after I submit an enquiry?",
+    a: "Our property expert will call you within 24 hours to understand your requirements. We then arrange a free site visit at your convenience — there is no obligation to purchase.",
   },
   {
-    q: "What does 1 year support include?",
-    a: "1 year support includes bug fixes, minor UI updates, iOS/Android OS compatibility updates, and technical assistance. It does not include new major features (those are quoted separately). You can contact your dedicated project manager anytime via WhatsApp, email, or phone.",
-  },
-  {
-    q: "Can I see your portfolio before deciding?",
-    a: "Yes! Check our portfolio section above with live app examples. We can also share client references and live apps in your industry during the consultation call. Our senior developer will walk you through relevant case studies before any commitment.",
-  },
-  {
-    q: "What technology stack do you use?",
-    a: "We build native Android (Kotlin), native iOS (Swift), and cross-platform apps (Flutter/React Native) depending on your requirements. Admin panels are built with React.js + Node.js. We recommend the best tech stack based on your business needs, not what's trendy.",
-  },
-  {
-    q: "How do I get started?",
-    a: "Simple! Fill the project form above → Pay the ₹99 refundable verification → Our senior developer calls you within 24 hours → Free project consultation → Detailed proposal with timeline → Development starts. The whole process from form to project kickoff takes 48–72 hours.",
+    q: "Do you operate Pan India or only in certain cities?",
+    a: "We operate Pan India with projects primarily in UP (Noida, Greater Noida, Agra, Lucknow), and expanding to Pune, Hyderabad, and Bengaluru. Contact us to check availability in your preferred city.",
   },
 ];
 
-function FAQItem({ faq, index }: { faq: typeof faqs[0]; index: number }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: (index % 5) * 0.07 }}
-      className="border border-white/10 rounded-2xl overflow-hidden"
-    >
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center justify-between gap-4 p-5 text-left transition-colors ${
-          open ? "bg-blue-600/10" : "hover:bg-white/5"
-        }`}
-        aria-expanded={open}
-        id={`faq-button-${index}`}
-      >
-        <span className="text-white font-semibold text-sm sm:text-base pr-4">{faq.q}</span>
-        <ChevronDown
-          size={18}
-          className={`text-blue-400 flex-shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            <div className="px-5 pb-5 text-slate-300 text-sm leading-relaxed border-t border-white/5">
-              <div className="pt-4">{faq.a}</div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 export default function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
   return (
-    <section id="faq" className="section-padding bg-navy" aria-label="Frequently asked questions">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {/* Header */}
+    <section className="section-padding bg-white" aria-label="Frequently asked questions">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="text-center mb-12"
         >
-          <p className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-3">
+          <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
             FAQ
           </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4">
-            Questions? We Have <span className="gradient-text">Answers.</span>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
+            Common <span className="gradient-text">Questions</span>
           </h2>
-          <p className="text-slate-400 text-lg">
-            Everything you need to know before starting your app project.
+          <p className="text-slate-500 text-base">
+            Everything you need to know before making your property decision.
           </p>
         </motion.div>
 
-        {/* FAQ accordion */}
         <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <FAQItem key={i} faq={faq} index={i} />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+              className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm"
+            >
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 transition-colors"
+                aria-expanded={openIndex === i}
+              >
+                <span className="text-slate-900 font-semibold text-sm pr-4">{faq.q}</span>
+                <ChevronDown
+                  size={18}
+                  className={`text-slate-400 flex-shrink-0 transition-transform duration-300 ${
+                    openIndex === i ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {openIndex === i && (
+                  <motion.div
+                    key="content"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-6 pb-5 text-slate-500 text-sm leading-relaxed border-t border-slate-100 pt-4">
+                      {faq.a}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
-
-        {/* Still have questions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-10 glass rounded-3xl border border-white/10 p-8 text-center"
-        >
-          <h3 className="text-white font-bold text-xl mb-2">Still have questions?</h3>
-          <p className="text-slate-400 text-sm mb-6">
-            Chat with us on WhatsApp or call us directly. We typically respond within 5 minutes.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="https://wa.me/919871881183?text=Hi, I have a question about building a mobile app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-              id="faq-whatsapp"
-            >
-              💬 WhatsApp Us
-            </a>
-            <a
-              href="tel:+918449488090"
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-xl transition-colors border border-white/10"
-              id="faq-call"
-            >
-              📞 Call Now
-            </a>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

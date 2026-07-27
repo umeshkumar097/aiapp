@@ -4,38 +4,55 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
-import GradientButton from "@/components/ui/GradientButton";
-import PaymentModal from "@/components/ui/PaymentModal";
 import toast from "react-hot-toast";
+import { CheckCircle, Building2, MapPin, Phone, MessageSquare } from "lucide-react";
+
+const budgetOptions = [
+  "Under ₹20 Lakh",
+  "₹20L – ₹50L",
+  "₹50L – ₹1 Crore",
+  "₹1Cr – ₹2Cr",
+  "₹2Cr+",
+];
+
+const timelineOptions = [
+  "Immediately",
+  "Within 3 months",
+  "3–6 months",
+  "6–12 months",
+  "Just exploring",
+];
+
+const propertyTypes = [
+  { value: "plot", label: "Plot / Land" },
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa / House" },
+  { value: "commercial", label: "Commercial" },
+] as const;
 
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Cashfree?: any;
+    fbq?: (...args: unknown[]) => void;
   }
 }
 
 export default function LeadForm() {
-  const [showModal, setShowModal] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-
-  const [paymentSession, setPaymentSession] = useState<{orderId: string, paymentSessionId: string} | null>(null);
-  const [formLoading, setFormLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LeadFormInput>({
     resolver: zodResolver(LeadFormSchema),
-    defaultValues: { platform: "both", agreeToPrivacy: true },
+    defaultValues: { propertyType: "apartment", agreeToPrivacy: true },
   });
 
-  const platform = watch("platform");
+  const propertyType = watch("propertyType");
 
-  // Capture UTM params from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const paramMap: Record<string, keyof LeadFormInput> = {
@@ -52,194 +69,195 @@ export default function LeadForm() {
     });
   }, [setValue]);
 
-  // Load Cashfree SDK dynamically
-  useEffect(() => {
-    if (document.getElementById("cashfree-js")) return;
-    const script = document.createElement("script");
-    script.id = "cashfree-js";
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
-
   const onSubmit = async (data: LeadFormInput) => {
-    setFormLoading(true);
+    setLoading(true);
     try {
-      const res = await fetch("/api/create-order", {
+      const res = await fetch("/api/submit-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data }),
       });
-
-      const responseData = await res.json();
-
-      if (!res.ok || !responseData.paymentSessionId) {
-        toast.error(responseData.error || "Failed to process form. Please try again.");
-        setFormLoading(false);
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Something went wrong. Please try again.");
         return;
       }
-
-      setPaymentSession({
-        orderId: responseData.orderId,
-        paymentSessionId: responseData.paymentSessionId,
-      });
-      setShowModal(true);
-    } catch (error) {
-      console.error("Form submit error:", error);
+      setSubmitted(true);
+      if (typeof window !== "undefined" && window.fbq) {
+        window.fbq("track", "Lead");
+      }
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
-      setFormLoading(false);
+      setLoading(false);
     }
   };
-
-  const handlePayNow = async () => {
-    if (!paymentSession) return;
-    
-    setPaymentLoading(true);
-    try {
-      if (!window.Cashfree) {
-        toast.error("Payment gateway loading... Please try in 3 seconds.");
-        setPaymentLoading(false);
-        return;
-      }
-
-      const cashfree = window.Cashfree({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV || "production",
-      });
-
-      cashfree.checkout({
-        paymentSessionId: paymentSession.paymentSessionId,
-        returnUrl: `${window.location.origin}/api/verify-payment?orderId=${paymentSession.orderId}&redirect=true`,
-        redirectTarget: "_self",
-      });
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("Something went wrong. Please try again.");
-      setPaymentLoading(false);
-    }
-  };
-
-  const budgetOptions = [
-    "Under ₹50,000", "₹50,000 - ₹1,00,000", "₹1,00,000 - ₹3,00,000",
-    "₹3,00,000 - ₹5,00,000", "₹5,00,000+",
-  ];
-
-  const timelineOptions = [
-    "ASAP (1-2 months)", "2-3 months", "3-6 months", "6+ months",
-  ];
 
   const inputClass =
-    "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all";
-
-  const customerName = watch("fullName");
+    "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all";
 
   return (
-    <section id="lead-form" className="section-padding bg-navy-light" aria-label="Project inquiry form">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-10">
-          <p className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-3">
-            Get Started Today
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-            Tell Us About Your <span className="gradient-text">Project</span>
-          </h2>
-          <p className="text-slate-400 text-base">
-            Fill the form below to initiate your project consultation.
-          </p>
-        </div>
+    <section id="lead-form" className="section-padding bg-navy-light" aria-label="Property enquiry form">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
 
-        <div className="glass rounded-3xl border border-white/10 p-6 md:p-10">
-          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Full Name *</label>
-                <input {...register("fullName")} type="text" placeholder="Umesh Kumar" className={inputClass} />
-                {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName.message}</p>}
-              </div>
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Phone Number *</label>
-                <input {...register("phone")} type="tel" placeholder="8449488090" className={inputClass} maxLength={10} />
-                {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>}
-              </div>
+          {/* Left: Info */}
+          <div>
+            <p className="text-blue-600 font-semibold text-sm tracking-widest uppercase mb-3">
+              Free Consultation
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-5 leading-tight">
+              Tell Us What You&apos;re
+              <br />
+              <span className="gradient-text">Looking For</span>
+            </h2>
+            <p className="text-slate-500 text-base leading-relaxed mb-8">
+              Share your requirements and our property expert will call you
+              within 24 hours — no pressure, zero brokerage, completely free.
+            </p>
+
+            <div className="space-y-4">
+              {[
+                { icon: <Building2 size={18} className="text-blue-600" />, title: "RERA Verified Properties", desc: "Every listing is legally vetted and RERA registered." },
+                { icon: <MapPin size={18} className="text-green-600" />, title: "Pan India Coverage", desc: "UP, Pune, Hyderabad, Bengaluru and growing." },
+                { icon: <Phone size={18} className="text-blue-600" />, title: "Expert Calls Within 24 Hrs", desc: "A dedicated property advisor — not a sales bot." },
+                { icon: <MessageSquare size={18} className="text-green-600" />, title: "Zero Brokerage", desc: "No hidden fees. What you see is what you pay." },
+              ].map((item) => (
+                <div key={item.title} className="flex items-start gap-3">
+                  <div className="w-9 h-9 bg-white rounded-xl border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p className="text-slate-900 font-semibold text-sm">{item.title}</p>
+                    <p className="text-slate-500 text-xs mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Email Address *</label>
-                <input {...register("email")} type="email" placeholder="umeshkumarceo@gmail.com" className={inputClass} />
-                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+          {/* Right: Form */}
+          <div>
+            {submitted ? (
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="text-green-500" size={32} />
+                </div>
+                <h3 className="text-slate-900 text-2xl font-black mb-2">Enquiry Submitted!</h3>
+                <p className="text-slate-500 text-sm mb-6">
+                  Our expert will call you within 24 hours. Thank you for your interest in Siteboard properties.
+                </p>
+                <a
+                  href="tel:+918449488090"
+                  className="inline-flex items-center gap-2 btn-gradient text-white font-bold px-6 py-3 rounded-xl"
+                >
+                  <Phone size={16} />
+                  Call Us Now: +91 8449488090
+                </a>
               </div>
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Business Name</label>
-                <input {...register("businessName")} type="text" placeholder="My Business" className={inputClass} />
-              </div>
-            </div>
+            ) : (
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-md p-6 md:p-8">
+                <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Full Name *</label>
+                      <input {...register("fullName")} type="text" placeholder="Rajesh Sharma" className={inputClass} />
+                      {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Phone Number *</label>
+                      <input {...register("phone")} type="tel" placeholder="9999999999" className={inputClass} maxLength={10} />
+                      {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
+                    </div>
+                  </div>
 
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Platform *</label>
-              <div className="grid grid-cols-3 gap-3">
-                {(["android", "ios", "both"] as const).map((p) => (
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Email Address *</label>
+                      <input {...register("email")} type="email" placeholder="rajesh@email.com" className={inputClass} />
+                      {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Your City *</label>
+                      <input {...register("city")} type="text" placeholder="Noida, Delhi, Pune..." className={inputClass} />
+                      {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 text-sm font-semibold mb-2">Property Type *</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {propertyTypes.map((p) => (
+                        <button
+                          key={p.value}
+                          type="button"
+                          onClick={() => setValue("propertyType", p.value)}
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                            propertyType === p.value
+                              ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                              : "bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">Budget Range</label>
+                      <select {...register("budget")} className={inputClass}>
+                        <option value="">Select budget</option>
+                        {budgetOptions.map((b) => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 text-sm font-semibold mb-1.5">When to Buy?</label>
+                      <select {...register("timeline")} className={inputClass}>
+                        <option value="">Select timeline</option>
+                        {timelineOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 text-sm font-semibold mb-1.5">Any Specific Requirements?</label>
+                    <textarea
+                      {...register("message")}
+                      rows={3}
+                      placeholder="E.g. East facing plot, near highway, school nearby..."
+                      className={inputClass}
+                    />
+                  </div>
+
                   <button
-                    key={p}
-                    type="button"
-                    onClick={() => setValue("platform", p)}
-                    className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
-                      platform === p
-                        ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                        : "bg-white/5 border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
-                    }`}
+                    type="submit"
+                    disabled={loading}
+                    className="w-full btn-gradient text-white font-black py-4 rounded-2xl text-base disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {p === "android" ? "Android" : p === "ios" ? "iOS" : "Both (Android + iOS)"}
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Submitting...
+                      </span>
+                    ) : (
+                      "Get Free Expert Consultation →"
+                    )}
                   </button>
-                ))}
-              </div>
-            </div>
 
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Budget Range</label>
-                <select {...register("budget")} className={inputClass}>
-                  <option value="" className="bg-slate-900">Select budget range</option>
-                  {budgetOptions.map((b) => (
-                    <option key={b} value={b} className="bg-slate-900">{b}</option>
-                  ))}
-                </select>
+                  <p className="text-slate-400 text-xs text-center">
+                    Zero brokerage · RERA approved · 100% free consultation · No spam
+                  </p>
+                </form>
               </div>
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">Timeline</label>
-                <select {...register("timeline")} className={inputClass}>
-                  <option value="" className="bg-slate-900">Select timeline</option>
-                  {timelineOptions.map((t) => (
-                    <option key={t} value={t} className="bg-slate-900">{t}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-1.5">Project Description</label>
-              <textarea {...register("projectDescription")} rows={4} placeholder="Tell us about your app idea..." className={inputClass} />
-            </div>
-
-            <GradientButton
-              type="submit"
-              size="lg"
-              className="w-full rounded-2xl mt-2"
-              loading={formLoading || isSubmitting}
-            >
-              Submit Requirement →
-            </GradientButton>
-          </form>
+            )}
+          </div>
         </div>
       </div>
-
-      <PaymentModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onPayNow={handlePayNow}
-        loading={paymentLoading}
-        customerName={customerName}
-      />
     </section>
   );
 }
