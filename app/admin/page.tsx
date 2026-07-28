@@ -105,61 +105,148 @@ function StageDropdown({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, 
   );
 }
 
-// ─── Remark Cell ───────────────────────────────────────────────
-function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, field: string, value: string) => void }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(lead.adminNotes || "");
-  const [saving, setSaving] = useState(false);
+// ─── Activity Log helpers ──────────────────────────────────────
+interface LogEntry { text: string; ts: string; }
 
-  const save = async () => {
+function parseLog(raw: string | null | undefined): LogEntry[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as LogEntry[];
+    // Legacy plain text → wrap as first entry
+    return [{ text: raw, ts: new Date(0).toISOString() }];
+  } catch {
+    return [{ text: raw, ts: new Date(0).toISOString() }];
+  }
+}
+
+function fmtTs(ts: string) {
+  const d = new Date(ts);
+  if (d.getFullYear() === 1970) return "Earlier"; // legacy entry
+  return d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
+}
+
+// ─── Remark Cell (Activity Log) ───────────────────────────────
+function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, field: string, value: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [newText, setNewText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const entries = parseLog(lead.adminNotes);
+
+  const addEntry = async () => {
+    const text = newText.trim();
+    if (!text) return;
     setSaving(true);
-    await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, adminNotes: value }) });
-    onUpdate(lead.id, "adminNotes", value);
+    const updated: LogEntry[] = [...entries, { text, ts: new Date().toISOString() }];
+    const json = JSON.stringify(updated);
+    await fetch("/api/leads", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: lead.id, adminNotes: json }),
+    });
+    onUpdate(lead.id, "adminNotes", json);
+    setNewText("");
     setSaving(false);
-    setEditing(false);
+    // keep expanded so user sees the new entry
   };
 
-  const cancel = () => { setValue(lead.adminNotes || ""); setEditing(false); };
-
-  if (editing) {
-    return (
-      <div className="flex items-start gap-1 min-w-[180px]">
-        <textarea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="flex-1 text-xs border border-blue-400 rounded-lg px-2 py-1.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 text-slate-800 bg-white"
-          rows={2}
-          placeholder="Add remark..."
-          autoFocus
-          onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) save(); if (e.key === "Escape") cancel(); }}
-        />
-        <div className="flex flex-col gap-1">
-          <button onClick={save} disabled={saving} className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center hover:bg-blue-700 disabled:opacity-60">
-            {saving ? <RefreshCw size={10} className="animate-spin text-white" /> : <Check size={11} className="text-white" />}
-          </button>
-          <button onClick={cancel} className="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center hover:bg-slate-200">
-            <XIcon size={11} className="text-slate-500" />
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const latest = entries[entries.length - 1];
 
   return (
-    <button
-      onClick={() => setEditing(true)}
-      className="group flex items-start gap-1.5 text-left w-full min-w-[140px] max-w-[200px]"
-      title="Click to add/edit remark"
-    >
-      <FileText size={12} className="text-slate-300 group-hover:text-blue-500 mt-0.5 flex-shrink-0 transition-colors" />
-      {value ? (
-        <span className="text-slate-600 text-xs leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">{value}</span>
-      ) : (
-        <span className="text-slate-300 text-xs italic group-hover:text-blue-400 transition-colors">Add remark...</span>
-      )}
-    </button>
+    <div className="min-w-[200px] max-w-[240px]">
+      {/* Latest entry preview / expand toggle */}
+      <button
+        onClick={() => { setExpanded((v) => !v); setTimeout(() => inputRef.current?.focus(), 80); }}
+        className="group w-full text-left"
+        title={expanded ? "Collapse log" : "View / add activity"}
+      >
+        {latest ? (
+          <div className="flex items-start gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
+            <div>
+              <p className="text-slate-700 text-xs leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors">{latest.text}</p>
+              <p className="text-slate-400 text-[10px] mt-0.5">{fmtTs(latest.ts)}</p>
+            </div>
+          </div>
+        ) : (
+          <span className="text-slate-300 text-xs italic group-hover:text-blue-400 transition-colors flex items-center gap-1">
+            <FileText size={11} />
+            Add activity log...
+          </span>
+        )}
+        {entries.length > 1 && !expanded && (
+          <p className="text-blue-500 text-[10px] mt-1">+{entries.length - 1} more entries ↓</p>
+        )}
+      </button>
+
+      {/* Expanded log panel */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 border border-slate-200 rounded-xl bg-slate-50 overflow-hidden shadow-sm">
+              {/* Timeline */}
+              <div className="max-h-48 overflow-y-auto p-3 space-y-2.5">
+                {entries.length === 0 && (
+                  <p className="text-slate-400 text-xs text-center py-2">No activity yet</p>
+                )}
+                {[...entries].reverse().map((entry, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="flex flex-col items-center flex-shrink-0 mt-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-400 border-2 border-white shadow" />
+                      {i < entries.length - 1 && <span className="w-0.5 h-4 bg-slate-200 mt-1" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-800 text-xs leading-snug break-words">{entry.text}</p>
+                      <p className="text-slate-400 text-[10px] mt-0.5 font-medium">{fmtTs(entry.ts)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add new entry */}
+              <div className="border-t border-slate-200 p-2 bg-white">
+                <textarea
+                  ref={inputRef}
+                  value={newText}
+                  onChange={(e) => setNewText(e.target.value)}
+                  placeholder="Add note... (Ctrl+Enter to save)"
+                  rows={2}
+                  className="w-full text-xs border border-slate-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-slate-800 bg-slate-50 placeholder-slate-400"
+                  onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) addEntry(); if (e.key === "Escape") setExpanded(false); }}
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-slate-400 text-[10px]">Ctrl+Enter to save</p>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setExpanded(false)}
+                      className="px-2.5 py-1 rounded-lg text-xs text-slate-500 hover:bg-slate-100 transition-colors"
+                    >Close</button>
+                    <button
+                      onClick={addEntry}
+                      disabled={saving || !newText.trim()}
+                      className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors"
+                    >
+                      {saving ? <RefreshCw size={10} className="animate-spin" /> : <Check size={10} />}
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
+
 
 // ─── Main Dashboard ────────────────────────────────────────────
 export default function AdminDashboard() {
