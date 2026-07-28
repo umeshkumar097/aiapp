@@ -7,9 +7,11 @@ import {
   Users, TrendingUp, RefreshCw, Search, Download, LogOut,
   Shield, Phone, MessageCircle, Calendar, Trash2,
   CheckSquare, Square, ChevronDown, Building2, CalendarDays,
-  AlertTriangle, FileText, Check, X as XIcon,
+  AlertTriangle, FileText, Check, X as XIcon, UserCircle2,
 } from "lucide-react";
 import type { Lead } from "@/types";
+
+interface TeamMember { id: string; name: string; color: string; role: string; active: boolean; }
 
 // ─── Types ─────────────────────────────────────────────────────
 interface StatsData { totalLeads: number; paidLeads: number; todayLeads: number; }
@@ -106,7 +108,7 @@ function StageDropdown({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, 
 }
 
 // ─── Activity Log helpers ──────────────────────────────────────
-interface LogEntry { text: string; ts: string; }
+interface LogEntry { text: string; ts: string; by?: string; byColor?: string; }
 
 function parseLog(raw: string | null | undefined): LogEntry[] {
   if (!raw) return [];
@@ -122,15 +124,26 @@ function parseLog(raw: string | null | undefined): LogEntry[] {
 
 function fmtTs(ts: string) {
   const d = new Date(ts);
-  if (d.getFullYear() === 1970) return "Earlier"; // legacy entry
+  if (d.getFullYear() === 1970) return "Earlier";
   return d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
 }
 
+function MemberDot({ name, color }: { name: string; color: string }) {
+  const initials = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+  return (
+    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-bold flex-shrink-0" style={{ background: color, fontSize: 9 }}>
+      {initials}
+    </span>
+  );
+}
+
 // ─── Remark Cell (Activity Log) ───────────────────────────────
-function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, field: string, value: string) => void }) {
+function RemarkCell({ lead, onUpdate, teamMembers }: { lead: Lead; onUpdate: (id: string, field: string, value: string) => void; teamMembers: TeamMember[] }) {
   const [expanded, setExpanded] = useState(false);
   const [newText, setNewText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [memberOpen, setMemberOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const entries = parseLog(lead.adminNotes);
@@ -139,7 +152,13 @@ function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, fie
     const text = newText.trim();
     if (!text) return;
     setSaving(true);
-    const updated: LogEntry[] = [...entries, { text, ts: new Date().toISOString() }];
+    const newEntry: LogEntry = {
+      text,
+      ts: new Date().toISOString(),
+      by: selectedMember?.name,
+      byColor: selectedMember?.color,
+    };
+    const updated: LogEntry[] = [...entries, newEntry];
     const json = JSON.stringify(updated);
     await fetch("/api/leads", {
       method: "PATCH",
@@ -149,7 +168,6 @@ function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, fie
     onUpdate(lead.id, "adminNotes", json);
     setNewText("");
     setSaving(false);
-    // keep expanded so user sees the new entry
   };
 
   const latest = entries[entries.length - 1];
@@ -199,12 +217,19 @@ function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, fie
                 {[...entries].reverse().map((entry, i) => (
                   <div key={i} className="flex items-start gap-2">
                     <div className="flex flex-col items-center flex-shrink-0 mt-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-400 border-2 border-white shadow" />
+                      {entry.by && entry.byColor
+                        ? <MemberDot name={entry.by} color={entry.byColor} />
+                        : <span className="w-2 h-2 rounded-full bg-blue-400 border-2 border-white shadow" />}
                       {i < entries.length - 1 && <span className="w-0.5 h-4 bg-slate-200 mt-1" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-slate-800 text-xs leading-snug break-words">{entry.text}</p>
-                      <p className="text-slate-400 text-[10px] mt-0.5 font-medium">{fmtTs(entry.ts)}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {entry.by && (
+                          <span className="text-[10px] font-semibold" style={{ color: entry.byColor ?? "#64748b" }}>{entry.by}</span>
+                        )}
+                        <span className="text-slate-400 text-[10px]">{fmtTs(entry.ts)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -212,6 +237,34 @@ function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, fie
 
               {/* Add new entry */}
               <div className="border-t border-slate-200 p-2 bg-white">
+                {/* Logged by selector */}
+                {teamMembers.length > 0 && (
+                  <div className="relative mb-2">
+                    <button
+                      onClick={() => setMemberOpen((v) => !v)}
+                      className="w-full flex items-center gap-2 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-left hover:border-blue-300 transition-colors bg-slate-50"
+                    >
+                      {selectedMember
+                        ? <><MemberDot name={selectedMember.name} color={selectedMember.color} /><span className="text-slate-700 font-medium">{selectedMember.name}</span></>
+                        : <><UserCircle2 size={14} className="text-slate-400" /><span className="text-slate-400">Logged by (select team member)</span></>}
+                      <ChevronDown size={11} className="ml-auto text-slate-400" />
+                    </button>
+                    {memberOpen && (
+                      <div className="absolute left-0 bottom-full mb-1 bg-white border border-slate-200 rounded-xl shadow-xl z-20 w-full py-1 max-h-40 overflow-y-auto">
+                        <button onClick={() => { setSelectedMember(null); setMemberOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-400 hover:bg-slate-50">
+                          <UserCircle2 size={13} /> No attribution
+                        </button>
+                        {teamMembers.filter((m) => m.active).map((m) => (
+                          <button key={m.id} onClick={() => { setSelectedMember(m); setMemberOpen(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-slate-50 ${selectedMember?.id === m.id ? "bg-blue-50" : ""}`}>
+                            <MemberDot name={m.name} color={m.color} />
+                            <span className="text-slate-700 font-medium">{m.name}</span>
+                            <span className="text-slate-400 ml-auto capitalize">{m.role}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <textarea
                   ref={inputRef}
                   value={newText}
@@ -224,17 +277,9 @@ function RemarkCell({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, fie
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-slate-400 text-[10px]">Ctrl+Enter to save</p>
                   <div className="flex gap-1.5">
-                    <button
-                      onClick={() => setExpanded(false)}
-                      className="px-2.5 py-1 rounded-lg text-xs text-slate-500 hover:bg-slate-100 transition-colors"
-                    >Close</button>
-                    <button
-                      onClick={addEntry}
-                      disabled={saving || !newText.trim()}
-                      className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors"
-                    >
-                      {saving ? <RefreshCw size={10} className="animate-spin" /> : <Check size={10} />}
-                      Save
+                    <button onClick={() => setExpanded(false)} className="px-2.5 py-1 rounded-lg text-xs text-slate-500 hover:bg-slate-100 transition-colors">Close</button>
+                    <button onClick={addEntry} disabled={saving || !newText.trim()} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors">
+                      {saving ? <RefreshCw size={10} className="animate-spin" /> : <Check size={10} />} Save
                     </button>
                   </div>
                 </div>
@@ -259,6 +304,12 @@ export default function AdminDashboard() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  // Fetch team members for activity log attribution
+  useEffect(() => {
+    fetch("/api/team").then((r) => r.ok ? r.json() : { members: [] }).then((d) => setTeamMembers(d.members ?? []));
+  }, []);
 
   const fetchLeads = useCallback(async (keepPage = false) => {
     setLoading(true);
@@ -326,6 +377,14 @@ export default function AdminDashboard() {
               <p className="text-slate-900 font-black text-sm leading-tight">Siteboard CRM</p>
               <p className="text-slate-400 text-xs">Lead Management</p>
             </div>
+          </div>
+
+          {/* Nav tabs */}
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+            <span className="text-sm px-3 py-1.5 rounded-lg bg-white text-slate-900 font-semibold shadow-sm">Leads</span>
+            <a href="/admin/team" className="text-sm px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 font-medium transition-colors flex items-center gap-1.5">
+              <Users size={14} /> Team
+            </a>
           </div>
 
           {/* Filters inline */}
@@ -501,7 +560,7 @@ export default function AdminDashboard() {
 
                         {/* Remark */}
                         <td className="px-4 py-3.5">
-                          <RemarkCell lead={lead} onUpdate={handleFieldUpdate} />
+                          <RemarkCell lead={lead} onUpdate={handleFieldUpdate} teamMembers={teamMembers} />
                         </td>
 
                         {/* Stage */}

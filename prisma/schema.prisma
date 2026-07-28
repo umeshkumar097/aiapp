@@ -70,3 +70,18 @@ model PendingOrder {
   @@index([orderId])
   @@index([status])
 }
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name      String
+  phone     String?
+  email     String?
+  role      String   @default("agent") // admin | manager | agent
+  active    Boolean  @default(true)
+  color     String   @default("#3b82f6") // avatar color hex
+
+  @@index([active])
+}
