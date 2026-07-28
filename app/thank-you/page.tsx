@@ -32,29 +32,13 @@ function ThankYouContent() {
 
     const txId = leadId || `lead_${Date.now()}`;
 
-    // Master fire — GA4 + Google Ads + Meta Pixel
+    // Master fire — GA4 + Google Ads + Meta Pixel (Lead event)
     fireAllTrackingEvents({
       transactionId: txId,
       orderId: txId,
       value: 0,
       currency: "INR",
     });
-
-    // Meta Pixel — direct safety call (in case fbq loaded late)
-    const firePixel = () => {
-      if (typeof window !== "undefined" && window.fbq) {
-        window.fbq("track", "Lead", {
-          content_name: "Siteboard Demo Request",
-          content_ids: [txId],
-          currency: "INR",
-          value: 0,
-        });
-      }
-    };
-    // Try immediately, then retry after 1s if fbq not yet loaded
-    firePixel();
-    const t = setTimeout(firePixel, 1000);
-    return () => clearTimeout(t);
   }, [hasFired, leadId]);
 
   const callbackTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(
