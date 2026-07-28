@@ -69,24 +69,29 @@ export async function GET(request: NextRequest) {
   });
 }
 
-// PATCH /api/leads — update status of a single lead
+// PATCH /api/leads — update status and/or adminNotes of a single lead
 export async function PATCH(request: NextRequest) {
   if (!(await checkAuth())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
-  const { id, paymentStatus } = body;
+  const { id, paymentStatus, adminNotes } = body as {
+    id: string;
+    paymentStatus?: string;
+    adminNotes?: string;
+  };
 
-  if (!id || !paymentStatus) {
-    return NextResponse.json({ error: "id and paymentStatus required" }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
-  const updated = await prisma.lead.update({
-    where: { id },
-    data: { paymentStatus },
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any = {};
+  if (paymentStatus !== undefined) data.paymentStatus = paymentStatus;
+  if (adminNotes !== undefined) data.adminNotes = adminNotes;
 
+  const updated = await prisma.lead.update({ where: { id }, data });
   return NextResponse.json({ success: true, lead: updated });
 }
 
