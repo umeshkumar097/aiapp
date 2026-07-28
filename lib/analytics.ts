@@ -58,16 +58,15 @@ export function fireGoogleAdsConversion(params: {
   });
 }
 
-/** Meta Pixel — Lead event */
+/** Meta Pixel — Lead event (SaaS lead gen — no catalogue fields) */
 export function fireMetaPixelLead(params: { orderId: string }) {
   if (typeof window === "undefined" || !window.fbq) return;
 
   window.fbq("track", "Lead", {
     content_name: "Siteboard Demo Request",
-    content_ids: [params.orderId],
-    content_type: "product",
     currency: "INR",
     value: 0,
+    order_id: params.orderId,
   });
 }
 
