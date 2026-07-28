@@ -47,18 +47,39 @@ function StatCard({ title, value, icon, bg, sub }: { title: string; value: strin
   );
 }
 
-// ─── Stage Badge + Dropdown ────────────────────────────────────
+// ─── Stage Badge + Dropdown (fixed-position to escape table overflow) ──────
 function StageDropdown({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, field: string, value: string) => void }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0, openUp: false });
+  const btnRef = useRef<HTMLButtonElement>(null);
   const stage = getStage(lead.paymentStatus);
 
+  // Close on outside click or scroll
   useEffect(() => {
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    if (!open) return;
+    const close = () => setOpen(false);
+    document.addEventListener("mousedown", close);
+    document.addEventListener("scroll", close, true);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("scroll", close, true);
+    };
+  }, [open]);
+
+  const handleOpen = () => {
+    if (!btnRef.current) return;
+    const rect = btnRef.current.getBoundingClientRect();
+    const dropHeight = CRM_STAGES.length * 36 + 8; // approx
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < dropHeight + 12;
+    setDropPos({
+      top: openUp ? rect.top - dropHeight - 4 : rect.bottom + 4,
+      left: rect.left,
+      openUp,
+    });
+    setOpen((v) => !v);
+  };
 
   const select = async (value: string) => {
     setOpen(false);
@@ -70,9 +91,10 @@ function StageDropdown({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, 
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div className="relative">
       <button
-        onClick={() => setOpen((v) => !v)}
+        ref={btnRef}
+        onClick={handleOpen}
         disabled={saving}
         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${stage.bg} ${stage.text} ${stage.border} hover:opacity-80 disabled:opacity-60 whitespace-nowrap`}
       >
@@ -80,27 +102,37 @@ function StageDropdown({ lead, onUpdate }: { lead: Lead; onUpdate: (id: string, 
         {stage.label}
         <ChevronDown size={11} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
+
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -4, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.96 }}
-            transition={{ duration: 0.12 }}
-            className="absolute left-0 top-9 z-30 bg-white rounded-xl border border-slate-200 shadow-2xl py-1 min-w-[180px]"
-          >
-            {CRM_STAGES.map((s) => (
-              <button
-                key={s.value}
-                onClick={() => select(s.value)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors text-left hover:bg-slate-50 ${s.value === lead.paymentStatus ? "bg-slate-50" : ""}`}
-              >
-                <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${s.dot}`} />
-                <span className="text-slate-700">{s.emoji} {s.label}</span>
-                {s.value === lead.paymentStatus && <Check size={12} className="ml-auto text-blue-600" />}
-              </button>
-            ))}
-          </motion.div>
+          <>
+            {/* invisible backdrop to capture outside clicks — stopPropagation so document handler doesn't fire instantly */}
+            <div
+              className="fixed inset-0 z-[998]"
+              onMouseDown={(e) => { e.stopPropagation(); setOpen(false); }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: dropPos.openUp ? 6 : -6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.12 }}
+              onMouseDown={(e) => e.stopPropagation()}
+              style={{ position: "fixed", top: dropPos.top, left: dropPos.left, zIndex: 999 }}
+              className="bg-white rounded-xl border border-slate-200 shadow-2xl py-1 min-w-[190px]"
+            >
+              {CRM_STAGES.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => select(s.value)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-medium transition-colors text-left hover:bg-slate-50 ${s.value === lead.paymentStatus ? "bg-slate-50" : ""}`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${s.dot}`} />
+                  <span className="text-slate-700">{s.emoji} {s.label}</span>
+                  {s.value === lead.paymentStatus && <Check size={12} className="ml-auto text-blue-600" />}
+                </button>
+              ))}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
