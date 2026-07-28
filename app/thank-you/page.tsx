@@ -30,13 +30,31 @@ function ThankYouContent() {
     if (hasFired) return;
     setHasFired(true);
 
-    // Always fire — even if no leadId (form submit can redirect without params)
+    const txId = leadId || `lead_${Date.now()}`;
+
+    // Master fire — GA4 + Google Ads + Meta Pixel
     fireAllTrackingEvents({
-      transactionId: leadId || `lead_${Date.now()}`,
-      orderId: leadId || `lead_${Date.now()}`,
-      value: 0,           // Lead is zero-value (no payment)
+      transactionId: txId,
+      orderId: txId,
+      value: 0,
       currency: "INR",
     });
+
+    // Meta Pixel — direct safety call (in case fbq loaded late)
+    const firePixel = () => {
+      if (typeof window !== "undefined" && window.fbq) {
+        window.fbq("track", "Lead", {
+          content_name: "Siteboard Demo Request",
+          content_ids: [txId],
+          currency: "INR",
+          value: 0,
+        });
+      }
+    };
+    // Try immediately, then retry after 1s if fbq not yet loaded
+    firePixel();
+    const t = setTimeout(firePixel, 1000);
+    return () => clearTimeout(t);
   }, [hasFired, leadId]);
 
   const callbackTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(
@@ -217,6 +235,18 @@ function ThankYouContent() {
 export default function ThankYouPage() {
   return (
     <>
+      {/* Meta Pixel — Lead event noscript fallback (no-JS users) */}
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src="https://www.facebook.com/tr?id=4485040718490356&ev=Lead&noscript=1"
+          alt=""
+        />
+      </noscript>
+
       <Navbar />
       <main className="min-h-screen bg-slate-50 flex items-center justify-center py-24 px-4">
         <Suspense
