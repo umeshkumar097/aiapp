@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadFormSchema, type LeadFormInput } from "@/lib/validation";
 import toast from "react-hot-toast";
@@ -23,6 +24,7 @@ interface InlineFormProps {
 export default function InlineLeadForm({ compact = false, onSuccess }: InlineFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -68,9 +70,9 @@ export default function InlineLeadForm({ compact = false, onSuccess }: InlineFor
       }
       setSubmitted(true);
       onSuccess?.();
-      if (typeof window !== "undefined" && (window as { fbq?: (...args: unknown[]) => void }).fbq) {
-        (window as { fbq?: (...args: unknown[]) => void }).fbq!("track", "Lead");
-      }
+      // Redirect to thank-you page so Google Ads + GA4 conversion fires
+      const name = data.fullName?.split(" ")[0] || "";
+      router.push(`/thank-you?leadId=${result.leadId || ""}&name=${encodeURIComponent(name)}`);
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {

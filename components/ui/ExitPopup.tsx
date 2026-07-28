@@ -84,24 +84,29 @@ export default function ExitPopup() {
               <div className="p-6">
                 {/* Header */}
                 <div className="mb-5">
-                  <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 rounded-full px-3 py-1.5 mb-3">
-                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-                    <span className="text-red-600 font-semibold text-xs">
-                      Don&apos;t miss out — Limited inventory
+                  <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-3 py-1.5 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-blue-700 font-semibold text-xs">
+                      Free Demo — No Setup Cost
                     </span>
                   </div>
                   <h3 className="text-slate-900 text-xl font-black leading-tight mb-1">
-                    Get Your Dream Property —<br />
-                    <span className="text-blue-600">Free Expert Consultation</span>
+                    Manage Your Inventory —
+                    <br />
+                    <span className="text-blue-600">Get a Free Live Demo</span>
                   </h3>
                   <p className="text-slate-500 text-sm">
-                    Fill in 30 seconds · Our expert calls you within 24 hrs
+                    Takes 30 seconds · Our expert calls you within 24 hrs
                   </p>
                 </div>
 
                 {/* Trust pills */}
                 <div className="flex flex-wrap gap-2 mb-5">
-                  {["Zero Brokerage", "RERA Approved", "Pan India"].map((t) => (
+                  {[
+                    "Zero Double Booking",
+                    "Plot + Apt + Houses",
+                    "Agent View Access",
+                  ].map((t) => (
                     <span
                       key={t}
                       className="flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-100 rounded-full px-2.5 py-1"
@@ -126,7 +131,7 @@ export default function ExitPopup() {
                   onClick={handleClose}
                   className="w-full mt-3 text-slate-400 text-xs hover:text-slate-500 transition-colors py-1"
                 >
-                  No thanks, I&apos;ll miss out
+                  No thanks, I&apos;ll skip the demo
                 </button>
               </div>
             </div>

@@ -3,7 +3,16 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { CheckCircle2, Phone, MessageCircle, Download, ExternalLink } from "lucide-react";
+import {
+  CheckCircle2,
+  Phone,
+  MessageCircle,
+  ExternalLink,
+  Building2,
+  Users,
+  LayoutDashboard,
+  Calendar,
+} from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,41 +20,43 @@ import { fireAllTrackingEvents } from "@/lib/analytics";
 
 function ThankYouContent() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId") || "";
-  const paymentId = searchParams.get("paymentId") || "";
+  // leadId is passed after successful form submission
+  const leadId = searchParams.get("leadId") || searchParams.get("orderId") || "";
   const name = searchParams.get("name") || "";
   const [hasFired, setHasFired] = useState(false);
 
-  // Fire conversion events once
+  // ─── Fire all conversion tracking events ONCE on page load ───
   useEffect(() => {
-    if (hasFired || !orderId) return;
+    if (hasFired) return;
     setHasFired(true);
 
+    // Always fire — even if no leadId (form submit can redirect without params)
     fireAllTrackingEvents({
-      transactionId: paymentId || orderId,
-      orderId,
-      value: 99,
+      transactionId: leadId || `lead_${Date.now()}`,
+      orderId: leadId || `lead_${Date.now()}`,
+      value: 0,           // Lead is zero-value (no payment)
       currency: "INR",
     });
-  }, [hasFired, orderId, paymentId]);
+  }, [hasFired, leadId]);
 
-  const callbackTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const callbackTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(
+    "en-IN",
+    { weekday: "long", day: "numeric", month: "long" }
+  );
+
+  const firstName = name ? name.split(" ")[0] : "";
 
   return (
     <div className="max-w-2xl w-full">
-      {/* Success animation */}
+
+      {/* ── Success animation ── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
         className="text-center mb-8"
       >
-        {/* Animated checkmark */}
+        {/* Animated check */}
         <div className="relative inline-block mb-6">
           <motion.div
             initial={{ scale: 0 }}
@@ -55,12 +66,12 @@ function ThankYouContent() {
           >
             <CheckCircle2 size={48} className="text-white" strokeWidth={2.5} />
           </motion.div>
-          {/* Rings */}
+          {/* Pulse ring */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1.3, opacity: 0 }}
-            transition={{ delay: 0.4, duration: 0.8, repeat: Infinity }}
-            className="absolute inset-0 rounded-full border-2 border-green-500"
+            animate={{ scale: 1.4, opacity: 0 }}
+            transition={{ delay: 0.4, duration: 0.9, repeat: Infinity }}
+            className="absolute inset-0 rounded-full border-2 border-green-400"
           />
         </div>
 
@@ -69,132 +80,134 @@ function ThankYouContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">
-            Thank You{name ? `, ${name.split(" ")[0]}` : ""}!
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 mb-3">
+            {firstName ? `Thank You, ${firstName}!` : "Demo Requested!"}
           </h1>
-          <p className="text-xl text-slate-300">
-            Your Project Request Has Been Verified Successfully.
+          <p className="text-slate-500 text-lg">
+            Your demo request has been received successfully.
           </p>
         </motion.div>
       </motion.div>
 
-      {/* Details card */}
+      {/* ── Main card ── */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="glass rounded-3xl border border-white/10 p-6 md:p-8 mb-6"
+        className="bg-white rounded-3xl border border-slate-200 shadow-md p-6 md:p-8 mb-6"
       >
-        {/* Payment confirmation */}
-        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5 mb-6 text-center">
-          <p className="text-green-400 font-bold text-lg mb-3">₹99 Payment Successful</p>
-          <div className="grid grid-cols-2 gap-3 text-left">
-            <div>
-              <p className="text-slate-500 text-xs">Order ID</p>
-              <p className="text-white text-sm font-mono font-semibold break-all">{orderId || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-slate-500 text-xs">Payment ID</p>
-              <p className="text-white text-sm font-mono font-semibold break-all">{paymentId || "N/A"}</p>
-            </div>
+        {/* Confirmation badge */}
+        <div className="bg-green-50 border border-green-100 rounded-2xl p-5 mb-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Building2 size={20} className="text-green-600" />
+            <p className="text-green-700 font-bold text-base">
+              Siteboard Demo Request Confirmed
+            </p>
           </div>
+          <p className="text-slate-500 text-sm">
+            Our product expert will reach you by{" "}
+            <strong className="text-slate-700">{callbackTime}</strong>
+          </p>
+          {leadId && (
+            <p className="text-slate-400 text-xs mt-2 font-mono">
+              Reference ID: {leadId}
+            </p>
+          )}
         </div>
 
         {/* What happens next */}
-        <h2 className="text-white font-bold text-lg mb-4">What happens next?</h2>
+        <h2 className="text-slate-900 font-bold text-base mb-4">
+          What happens next?
+        </h2>
         <div className="space-y-4">
           {[
             {
               step: "1",
-              title: "Expert Call",
-              desc: `Our senior developer will call you by ${callbackTime}`,
+              icon: <Phone size={16} className="text-white" />,
+              title: "Expert Calls You",
+              desc: `Our product specialist will call you by ${callbackTime} to understand your requirements.`,
               color: "bg-blue-600",
             },
             {
               step: "2",
-              title: "Free Consultation",
-              desc: "30-minute call to understand your requirements in detail",
+              icon: <LayoutDashboard size={16} className="text-white" />,
+              title: "Live Demo on Your Data",
+              desc: "We walk you through Siteboard using your actual project structure — plots, apartments, or houses.",
               color: "bg-purple-600",
             },
             {
               step: "3",
-              title: "Project Proposal",
-              desc: "Custom proposal with timeline, milestones, and breakdown",
-              color: "bg-indigo-600",
+              icon: <Users size={16} className="text-white" />,
+              title: "Onboard Your Team",
+              desc: "Add your staff and agents with role-based access. Go live on the same day.",
+              color: "bg-green-600",
             },
             {
               step: "4",
-              title: "Development Starts",
-              desc: "Your app development begins with a dedicated project manager",
-              color: "bg-green-600",
+              icon: <Calendar size={16} className="text-white" />,
+              title: "Start Managing Inventory",
+              desc: "Your entire plot/apartment/house inventory is now real-time — zero double bookings, ever.",
+              color: "bg-amber-500",
             },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-4">
               <div
-                className={`w-8 h-8 rounded-full ${item.color} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5`}
+                className={`w-8 h-8 rounded-full ${item.color} flex items-center justify-center flex-shrink-0 mt-0.5`}
               >
-                {item.step}
+                {item.icon}
               </div>
               <div>
-                <p className="text-white font-semibold text-sm">{item.title}</p>
-                <p className="text-slate-400 text-sm">{item.desc}</p>
+                <p className="text-slate-900 font-semibold text-sm">{item.title}</p>
+                <p className="text-slate-500 text-sm">{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </motion.div>
 
-      {/* Action buttons */}
+      {/* ── Action buttons ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
       >
         <a
-          href={`https://wa.me/919871881183?text=Hi%20Aiclex%20Team!%20I%20just%20submitted%20my%20project%20request.%20Order%20ID%3A%20${orderId}`}
+          href={`https://wa.me/918449488090?text=Hi%20Siteboard%20Team!%20I%20just%20submitted%20a%20demo%20request.%20Reference%3A%20${leadId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl transition-all hover:-translate-y-1"
+          className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl transition-all hover:-translate-y-0.5 shadow-sm"
           id="thankyou-whatsapp"
         >
           <MessageCircle size={18} />
-          WhatsApp
+          WhatsApp Us
         </a>
         <a
           href="tel:+918449488090"
-          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-2xl transition-all hover:-translate-y-1"
+          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-2xl transition-all hover:-translate-y-0.5 shadow-sm"
           id="thankyou-call"
         >
           <Phone size={18} />
-          Call Now
-        </a>
-        <a
-          href="#"
-          className="flex items-center justify-center gap-2 glass border border-white/10 hover:border-white/20 text-white font-semibold py-4 rounded-2xl transition-all hover:-translate-y-1"
-          id="thankyou-brochure"
-        >
-          <Download size={18} />
-          Brochure
+          Call: +91 8449488090
         </a>
       </motion.div>
 
-      {/* Share */}
+      {/* ── Footer note ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-center"
+        className="text-center space-y-3"
       >
-        <p className="text-slate-500 text-sm mb-3">
-          Check your email for confirmation. Add our number to save it.
+        <p className="text-slate-400 text-sm">
+          Check your email for confirmation · info@siteboard.in
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm transition-colors"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
         >
           <ExternalLink size={14} />
-          Back to Homepage
+          Back to Siteboard Homepage
         </Link>
       </motion.div>
     </div>
@@ -205,8 +218,14 @@ export default function ThankYouPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-navy flex items-center justify-center py-24 px-4">
-        <Suspense fallback={<div className="text-white text-center">Loading...</div>}>
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center py-24 px-4">
+        <Suspense
+          fallback={
+            <div className="text-slate-500 text-center font-medium">
+              Loading...
+            </div>
+          }
+        >
           <ThankYouContent />
         </Suspense>
       </main>

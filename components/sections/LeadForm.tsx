@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 declare global {
   interface Window {
@@ -32,6 +33,7 @@ const inventoryTypes = [
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -76,9 +78,9 @@ export default function LeadForm() {
         return;
       }
       setSubmitted(true);
-      if (typeof window !== "undefined" && window.fbq) {
-        window.fbq("track", "Lead");
-      }
+      // Redirect to /thank-you — triggers Google Ads + GA4 + Meta conversion
+      const firstName = data.fullName?.split(" ")[0] || "";
+      router.push(`/thank-you?leadId=${result.leadId || ""}&name=${encodeURIComponent(firstName)}`);
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
