@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { sendMetaCAPIEvent, statusToMetaEvent } from "@/lib/meta-capi";
 
 async function checkAuth() {
   const cookieStore = await cookies();
@@ -92,6 +93,20 @@ export async function PATCH(request: NextRequest) {
   if (adminNotes !== undefined) data.adminNotes = adminNotes;
 
   const updated = await prisma.lead.update({ where: { id }, data });
+
+  // ── Fire Meta CAPI signal on quality status changes ──
+  if (paymentStatus && statusToMetaEvent(paymentStatus)) {
+    // Run async — don't block the response
+    sendMetaCAPIEvent({
+      leadId:   updated.id,
+      phone:    updated.phone,
+      email:    updated.email,
+      status:   paymentStatus,
+      value:    0,
+      currency: "INR",
+    }).catch((e) => console.error("[CAPI] Failed:", e));
+  }
+
   return NextResponse.json({ success: true, lead: updated });
 }
 
